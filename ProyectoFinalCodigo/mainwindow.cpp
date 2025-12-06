@@ -12,7 +12,7 @@
 #include <cmath>
 #include <QPainterPath>
 #include <QMouseEvent>
-
+#include <QSoundEffect>
 
 #include "PersonajeGrafico.h"
 #include "ProyectilGrafico.h"
@@ -70,6 +70,25 @@ MainWindow::MainWindow(QWidget *parent)
     , medicoCobY(0.0f)
 {
     ui->setupUi(this);
+
+    tiempoRecargaDisparoCmd = 0.0f;
+    intervaloDisparoCmd     = 0.25f;
+
+    // Sonidos
+    sfxExplosion.setSource(QUrl("qrc:/Proyectiles/ExplosionGranada"));
+    sfxExplosion.setVolume(0.8f);
+
+    sfxDisparo.setSource(QUrl("qrc:/Proyectiles/Disparo"));
+    sfxDisparo.setVolume(0.7f);
+
+    sfxDisparoSniper.setSource(QUrl("qrc:/Proyectiles/DisparoFrancotirador"));
+    sfxDisparoSniper.setVolume(0.9f);
+
+    // Pasos del comandante
+    sfxPasos.setSource(QUrl("qrc:/Personas/Pasos"));
+    sfxPasos.setLoopCount(QSoundEffect::Infinite);
+    sfxPasos.setVolume(0.2f);
+
 
     nivel = new Nivel();
 
@@ -482,6 +501,20 @@ void MainWindow::actualizarMovimiento()
     if (rightPressed) dx += 1.0f;
 
     float len = std::sqrt(dx*dx + dy*dy);
+    bool seMueve = (len > 0.0f);
+
+    // Solo si ya existe el comandante
+    if (comandanteModelo && comandanteSprite) {
+        if (seMueve) {
+            if (!sfxPasos.isPlaying()) {
+                sfxPasos.play();
+            }
+        } else {
+            if (sfxPasos.isPlaying()) {
+                sfxPasos.stop();
+            }
+        }
+    }
 
     if (len > 0.0f) {
         dx /= len;
@@ -527,6 +560,12 @@ void MainWindow::actualizarMovimiento()
     }
     for (auto *pg : aliadosSprites) {
         if (pg) pg->actualizarDesdeModelo(dt);
+    }
+
+    if (tiempoRecargaDisparoCmd > 0.0f) {
+        tiempoRecargaDisparoCmd -= DT_MOVIMIENTO;
+        if (tiempoRecargaDisparoCmd < 0.0f)
+            tiempoRecargaDisparoCmd = 0.0f;
     }
 }
 
@@ -576,39 +615,66 @@ void MainWindow::moverComandante(float dx, float dy)
     if (nivelCompletado) return;
     if (dx == 0.0f && dy == 0.0f) return;
 
-    QPointF posAnterior = comandanteSprite->pos();
+    QPointF posInicial = comandanteSprite->pos();
 
-    // Intentar mover
-    comandanteSprite->moveBy(dx, dy);
+    auto intentaMovimiento = [this, posInicial](float mx, float my) -> bool
+    {
+        // Colocar en posición candidata
+        comandanteSprite->setPos(posInicial.x() + mx,
+                                 posInicial.y() + my);
 
-    bool hayColision = false;
+        bool hayColision = false;
 
-    // Limite del mapa (fondo)
-    if (escena) {
-        QRectF bounds = escena->sceneRect();
-        if (!bounds.contains(comandanteSprite->pos())) {
-            hayColision = true;
-        }
-    }
-
-    // Obstaculos
-    if (!hayColision) {
-        for (QGraphicsItem *obs : obstaculos) {
-            if (!obs) continue;
-            if (comandanteSprite->collidesWithItem(obs)) {
+        // Limites del mapa
+        if (escena) {
+            QRectF bounds = escena->sceneRect();
+            if (!bounds.contains(comandanteSprite->sceneBoundingRect())) {
                 hayColision = true;
-                break;
             }
         }
+
+        // Obstaculos
+        if (!hayColision) {
+            for (QGraphicsItem *obs : obstaculos) {
+                if (!obs) continue;
+                if (comandanteSprite->collidesWithItem(obs)) {
+                    hayColision = true;
+                    break;
+                }
+            }
+        }
+
+        if (hayColision) {
+            // Volver a la posición inicial
+            comandanteSprite->setPos(posInicial);
+            return false;
+        }
+
+        return true;
+    };
+
+    bool movido = false;
+
+    // Intento movimiento completo
+    if (intentaMovimiento(dx, dy)) {
+        movido = true;
+    }
+    // Intento solo X
+    else if (dx != 0.0f && intentaMovimiento(dx, 0.0f)) {
+        movido = true;
+    }
+    // Intento solo Y
+    else if (dy != 0.0f && intentaMovimiento(0.0f, dy)) {
+        movido = true;
     }
 
-    if (hayColision) {
-        comandanteSprite->setPos(posAnterior);
+    if (!movido) {
+        // No se pudo mover en ninguna dirección
         comandanteModelo->setVelocidad(0.0f, 0.0f);
         return;
     }
 
-    // Sincronizar modelo logico con la posicion grafica
+    // Sincronizar modelo logico con la posicion grafica definitiva
     comandanteModelo->setPosicion(
         static_cast<float>(comandanteSprite->x()),
         static_cast<float>(comandanteSprite->y())
@@ -619,32 +685,20 @@ void MainWindow::moverComandante(float dx, float dy)
         ui->graphicsView->centerOn(comandanteSprite);
     }
 
-    // Comprobar victoria usando la zona objetivo + logica del nivel
-    if (zonaObjetivo && nivel && !nivelCompletado) {
-        QRectF r = zonaObjetivo->sceneBoundingRect();
-
-        bool gano = nivel->verificarVictoria(
-            comandanteModelo,
-            nivel->getEnemigos(),
-            nivel->getAliados(),
-            static_cast<float>(r.left()),
-            static_cast<float>(r.right()),
-            static_cast<float>(r.top()),
-            static_cast<float>(r.bottom())
-            );
-
-        if (gano) {
-            nivelCompletado = true;
-            // aqui puedes mostrar mensaje de victoria o pasar de nivel
-        }
+    // Verificar victoria igual que antes
+    if (!nivelCompletado) {
+        verificarVictoria();
     }
 }
+
 
 //   Disparo del Comandante
 void MainWindow::dispararComandante()
 {
     if (!comandanteModelo || !comandanteSprite || !escena) return;
     if (nivelCompletado) return;
+
+    if (tiempoRecargaDisparoCmd > 0.0f) return;
 
     // Direccion de disparo
     float dx = dirX;
@@ -689,6 +743,9 @@ void MainWindow::dispararComandante()
     escena->addItem(pg);
     proyectilesGraficos.push_back(pg);
 
+    sfxDisparo.play();
+    tiempoRecargaDisparoCmd = intervaloDisparoCmd;
+
     // Animacion de disparo
     if (comandanteSprite) {
         comandanteSprite->notificarDisparo(0.15f);
@@ -731,12 +788,12 @@ void MainWindow::actualizarIAAliados()
         float paso = velocidad * DT_IA;
         if (paso > dist) paso = dist;
 
-        // Distancia del aliado al comandante (antes del movimiento)
+        // Distancia al comandante (para tu logica de lejosDelComandante)
         float distAlCmdX = x - cx;
         float distAlCmdY = y - cy;
         float distAlCmd  = std::sqrt(distAlCmdX*distAlCmdX + distAlCmdY*distAlCmdY);
 
-        bool lejosDelComandante = (distAlCmd > 200.0f);
+        bool lejosDelComandante = (distAlCmd > 120.0f);
 
         auto puedeMover = [this, sprite, modelo, lejosDelComandante](float px, float py) -> bool {
             float oldX = modelo->getX();
@@ -750,12 +807,12 @@ void MainWindow::actualizarIAAliados()
             // Limites del mapa
             if (escena) {
                 QRectF bounds = escena->sceneRect();
-                if (!bounds.contains(sprite->pos())) {
+                if (!bounds.contains(sprite->sceneBoundingRect())) {
                     choca = true;
                 }
             }
 
-            //  Obstaculos siempre se evitan
+            // Obstaculos
             if (!choca) {
                 for (QGraphicsItem* ob : obstaculos) {
                     if (!ob) continue;
@@ -766,12 +823,13 @@ void MainWindow::actualizarIAAliados()
                 }
             }
 
-            // Comandante siempre se evita
+            // Comandante
             if (!choca && comandanteSprite &&
                 sprite->collidesWithItem(comandanteSprite)) {
                 choca = true;
             }
 
+            // Aliados entre si (si estan cerca del comandante)
             if (!lejosDelComandante && !choca) {
                 if (fusileroSprite && sprite != fusileroSprite &&
                     fusileroModelo && fusileroModelo->getSalud() > 0 &&
@@ -790,13 +848,15 @@ void MainWindow::actualizarIAAliados()
             return !choca;
         };
 
-        const float PI = 3.14159265f;
+        // Desplazamiento deseado
+        float movX = nx * paso;
+        float movY = ny * paso;
 
-        // Intento directo hacia el objetivo
-        float tx = x + nx * paso;
-        float ty = y + ny * paso;
+        float nuevoX = x + movX;
+        float nuevoY = y + movY;
 
-        auto aplicarMovimiento = [&](float nxPaso, float nyPaso, float destX, float destY) {
+        // Helper para aplicar movimiento + velocidad + rotacion
+        auto aplicarMovimiento = [&](float destX, float destY, float dirX, float dirY) {
             float vx = (destX - x) / DT_IA;
             float vy = (destY - y) / DT_IA;
             modelo->setVelocidad(vx, vy);
@@ -804,57 +864,33 @@ void MainWindow::actualizarIAAliados()
             modelo->setPosicion(destX, destY);
             sprite->actualizarDesdeModelo();
 
-            float angRad = std::atan2(nyPaso, nxPaso);
+            const float PI = 3.14159265f;
+            float angRad = std::atan2(dirY, dirX);
             float angDeg = angRad * 180.0f / PI;
             sprite->setRotation(angDeg);
         };
 
-        if (puedeMover(tx, ty)) {
-            aplicarMovimiento(nx, ny, tx, ty);
+        // 1) Intento mov completo (X+Y)
+        if (puedeMover(nuevoX, nuevoY)) {
+            aplicarMovimiento(nuevoX, nuevoY, movX, movY);
             return;
         }
 
-        const float GRADOS_A_RAD = 3.14159265f / 180.0f;
-        float angulos[] = { 15.0f, -15.0f, 30.0f, -30.0f, 45.0f, -45.0f };
-
-        for (int i = 0; i < 6; ++i) {
-            float ang = angulos[i] * GRADOS_A_RAD;
-            float cosA = std::cos(ang);
-            float sinA = std::sin(ang);
-
-            float rx = nx * cosA - ny * sinA;
-            float ry = nx * sinA + ny * cosA;
-
-            float altX = x + rx * paso;
-            float altY = y + ry * paso;
-
-            if (puedeMover(altX, altY)) {
-                aplicarMovimiento(rx, ry, altX, altY);
-                return;
-            }
-        }
-
-        // Intento lateral
-        float ladoX = -ny;
-        float ladoY =  nx;
-
-        float altX1 = x + ladoX * (paso * 0.7f);
-        float altY1 = y + ladoY * (paso * 0.7f);
-        if (puedeMover(altX1, altY1)) {
-            aplicarMovimiento(ladoX, ladoY, altX1, altY1);
+        // 2) Intento solo X
+        if (puedeMover(x + movX, y)) {
+            aplicarMovimiento(x + movX, y, movX, 0.0f);
             return;
         }
 
-        float altX2 = x - ladoX * (paso * 0.7f);
-        float altY2 = y - ladoY * (paso * 0.7f);
-        if (puedeMover(altX2, altY2)) {
-            aplicarMovimiento(-ladoX, -ladoY, altX2, altY2);
+        // 3) Intento solo Y
+        if (puedeMover(x, y + movY)) {
+            aplicarMovimiento(x, y + movY, 0.0f, movY);
             return;
         }
 
+        // 4) No se pudo mover
         modelo->setVelocidad(0.0f, 0.0f);
     };
-
 
     // Enemigo mas cercano (para fuego / cobertura)
     Personaje* enemigoMasCercano = nullptr;
@@ -862,7 +898,6 @@ void MainWindow::actualizarIAAliados()
     if (nivel) {
         enemigoMasCercano = nivel->obtenerEnemigoMasCercanoAl(comandanteModelo,enemigosModelo);
     }
-
 
     // Modo cubrirse
     if (aliadosEnCobertura) {
@@ -995,6 +1030,9 @@ void MainWindow::actualizarIAAliados()
 
                     proyectilesModelo.push_back(p);
                     proyectilesGraficos.push_back(pg);
+
+                    // Sonido
+                    sfxDisparo.play();
                 }
             }
         }
@@ -1234,15 +1272,20 @@ void MainWindow::actualizarIAEnemigos()
             return !choca;
         };
 
-        // Movimiento
+        // Moviento
         if (!esFrancotirador) {
             // Enemigo normal / granadero intenta acercarse al COMANDANTE
+
+            // Vector hacia el comandante
             float nx = dx / distCmd;
             float ny = dy / distCmd;
+
             float paso = velMovimiento * DT;
 
+            // --------------------------
             // Separacion entre enemigos
-            const float DIST_SEP   = 100.0f;
+            // --------------------------
+            const float DIST_SEP   = 50.0f;
             const float FUERZA_SEP = 0.4f;
 
             float sepX = 0.0f;
@@ -1250,6 +1293,7 @@ void MainWindow::actualizarIAEnemigos()
 
             for (std::size_t j = 0; j < enemigosModelo.size(); ++j) {
                 if (j == i) continue;
+
                 Personaje* otro = enemigosModelo[j];
                 if (!otro) continue;
                 if (otro->getSalud() <= 0) continue;
@@ -1260,104 +1304,105 @@ void MainWindow::actualizarIAEnemigos()
                 float ddx = ex - ox;
                 float ddy = ey - oy;
                 float d2  = ddx*ddx + ddy*ddy;
-                float d   = std::sqrt(d2);
+                if (d2 < 1.0f) continue;
 
-                if (d > 1.0f && d < DIST_SEP) {
+                float d = std::sqrt(d2);
+
+                if (d < DIST_SEP) {
                     float inv = 1.0f / d;
                     sepX += (ddx * inv) * (DIST_SEP - d) * FUERZA_SEP;
                     sepY += (ddy * inv) * (DIST_SEP - d) * FUERZA_SEP;
                 }
             }
 
+            // Movimiento deseado (perseguir + separacion)
             float movX = nx * paso + sepX;
             float movY = ny * paso + sepY;
 
             float candidatoX = ex + movX;
             float candidatoY = ey + movY;
 
-            const float PI = 3.14159265f;
-
-            auto distA = [](Personaje* pj, float px, float py) -> float {
+            auto distAl = [&](Personaje* pj)->float {
                 if (!pj || pj->getSalud() <= 0) return 1e6f;
-                float dx = pj->getX() - px;
-                float dy = pj->getY() - py;
-                return std::sqrt(dx*dx + dy*dy);
+                float ax = pj->getX();
+                float ay = pj->getY();
+                float ddx = candidatoX - ax;
+                float ddy = candidatoY - ay;
+                return std::sqrt(ddx*ddx + ddy*ddy);
             };
 
-            float distCmd = distA(comandanteModelo, candidatoX, candidatoY);
-            float distFus = distA(fusileroModelo,   candidatoX, candidatoY);
-            float distMed = distA(medicoModelo,     candidatoX, candidatoY);
+            float minAliado = distAl(comandanteModelo);
+            float dF        = distAl(fusileroModelo);
+            float dM        = distAl(medicoModelo);
 
-            // minimo de las tres
-            float minAliado = std::min(distCmd, std::min(distFus, distMed));
+            if (dF < minAliado) minAliado = dF;
+            if (dM < minAliado) minAliado = dM;
 
-            if (minAliado < DIST_MIN_ALIADO) {
-                // demasiado cerca de un aliado: quieto
-                enemigo->setVelocidad(0.0f, 0.0f);
-            } else {
+            if (minAliado >= DIST_MIN_ALIADO) {
+
+                bool movido = false;
+
+                // 1) Intento movimiento completo (X + Y)
                 if (puedeMoverA(candidatoX, candidatoY)) {
                     enemigo->setPosicion(candidatoX, candidatoY);
-                    float vx = movX / DT;
-                    float vy = movY / DT;
-                    enemigo->setVelocidad(vx, vy);
-
-                    float angRad = std::atan2(vy, vx);
-                    float angDeg = angRad * 180.0f / PI;
-                    sprite->setRotation(angDeg);
+                    movido = true;
                 } else {
-                    const float ANG = 3.14159265f / 6.0f; // 30 grados
-                    float cosA = std::cos(ANG);
-                    float sinA = std::sin(ANG);
-
-                    float movDerX = movX * cosA - movY * sinA;
-                    float movDerY = movX * sinA + movY * cosA;
-                    if (puedeMoverA(ex + movDerX, ey + movDerY)) {
-                        enemigo->setPosicion(ex + movDerX, ey + movDerY);
-                        float vx = movDerX / DT;
-                        float vy = movDerY / DT;
-                        enemigo->setVelocidad(vx, vy);
-
-                        float angRad = std::atan2(vy, vx);
-                        float angDeg = angRad * 180.0f / PI;
-                        sprite->setRotation(angDeg);
-                    } else {
-                        float movIzqX = movX * cosA + movY * sinA;
-                        float movIzqY = -movX * sinA + movY * cosA;
-                        if (puedeMoverA(ex + movIzqX, ey + movIzqY)) {
-                            enemigo->setPosicion(ex + movIzqX, ey + movIzqY);
-                            float vx = movIzqX / DT;
-                            float vy = movIzqY / DT;
-                            enemigo->setVelocidad(vx, vy);
-
-                            float angRad = std::atan2(vy, vx);
-                            float angDeg = angRad * 180.0f / PI;
-                            sprite->setRotation(angDeg);
-                        } else {
-                            enemigo->setVelocidad(0.0f, 0.0f);
-                        }
+                    // 2) Intento solo X
+                    if (puedeMoverA(ex + movX, ey)) {
+                        enemigo->setPosicion(ex + movX, ey);
+                        movido = true;
+                    }
+                    // 3) Intento solo Y
+                    else if (puedeMoverA(ex, ey + movY)) {
+                        enemigo->setPosicion(ex, ey + movY);
+                        movido = true;
                     }
                 }
             }
         }
         else {
-            // Francotirador
+            // Francotirador: mantener distancia preferida respecto al COMANDANTE
+
             float nx = dx / distCmd;
             float ny = dy / distCmd;
 
+            float movX = 0.0f;
+            float movY = 0.0f;
+
+            // Si esta demasiado LEJOS, se acerca
             if (distCmd > distPref + MARGEN_DIST) {
                 float paso = velMovimiento * DT;
-                float nuevoX = ex + nx * paso;
-                float nuevoY = ey + ny * paso;
-                if (puedeMoverA(nuevoX, nuevoY)) {
-                    enemigo->setPosicion(nuevoX, nuevoY);
-                }
+                movX = nx * paso;
+                movY = ny * paso;
             }
+            // Si esta demasiado CERCA, se aleja
             else if (distCmd < distPref - MARGEN_DIST) {
                 float paso = velMovimiento * DT;
-                float nuevoX = ex - nx * paso;
-                float nuevoY = ey - ny * paso;
-                if (puedeMoverA(nuevoX, nuevoY)) {
-                    enemigo->setPosicion(nuevoX, nuevoY);
+                movX = -nx * paso;
+                movY = -ny * paso;
+            }
+
+            if (movX != 0.0f || movY != 0.0f) {
+                float candidatoX = ex + movX;
+                float candidatoY = ey + movY;
+
+                bool movido = false;
+
+                // 1) Intento movimiento completo
+                if (puedeMoverA(candidatoX, candidatoY)) {
+                    enemigo->setPosicion(candidatoX, candidatoY);
+                    movido = true;
+                } else {
+                    // 2) Intento solo X
+                    if (puedeMoverA(ex + movX, ey)) {
+                        enemigo->setPosicion(ex + movX, ey);
+                        movido = true;
+                    }
+                    // 3) Intento solo Y
+                    else if (puedeMoverA(ex, ey + movY)) {
+                        enemigo->setPosicion(ex, ey + movY);
+                        movido = true;
+                    }
                 }
             }
         }
@@ -1431,6 +1476,12 @@ void MainWindow::actualizarIAEnemigos()
                     proyectilesModelo.push_back(p);
                     proyectilesGraficos.push_back(pg);
 
+                    if (esFrancotirador) {
+                        sfxDisparoSniper.play();
+                    } else {
+                        sfxDisparo.play();
+                    }
+
                     if (sprite) {
                         sprite->notificarDisparo(0.15f);
                     }
@@ -1461,6 +1512,8 @@ void MainWindow::actualizarProyectiles()
             float gy    = granadasY[i];
             float radio = granadasRadio[i];
             int   dano  = granadasDano[i];
+
+            sfxExplosion.play();
 
             // Dano al comandante si esta dentro del radio
             if (comandanteModelo && comandanteSprite && nivel) {

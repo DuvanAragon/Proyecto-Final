@@ -1,0 +1,10 @@
+<RCC>
+    <qresource prefix="/Proyectiles">
+        <file alias="Disparo">build/Desktop_Qt_6_9_2_MinGW_64_bit-Debug/Sonidos/Disparo.wav</file>
+        <file alias="DisparoFrancotirador">build/Desktop_Qt_6_9_2_MinGW_64_bit-Debug/Sonidos/DisparoFrancotirador.wav</file>
+        <file alias="ExplosionGranada">build/Desktop_Qt_6_9_2_MinGW_64_bit-Debug/Sonidos/Granada.wav</file>
+    </qresource>
+    <qresource prefix="/Personas">
+        <file alias="Pasos">build/Desktop_Qt_6_9_2_MinGW_64_bit-Debug/Sonidos/Pasos.wav</file>
+    </qresource>
+</RCC>

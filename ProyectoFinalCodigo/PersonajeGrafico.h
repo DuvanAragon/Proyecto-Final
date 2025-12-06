@@ -16,13 +16,10 @@ public:
     explicit PersonajeGrafico(Personaje* modelo,
                               QGraphicsItem* parent = nullptr);
 
-    // Version sin dt (compatibilidad)
     void actualizarDesdeModelo();
 
-    // Version con dt: posicion + animacion
     void actualizarDesdeModelo(float dt);
 
-    // Llamar cuando el personaje dispare (frame de disparo)
     void notificarDisparo(float duracion = 0.15f);
 
     Personaje* getModelo() const { return modelo; }
@@ -43,7 +40,7 @@ private:
     void cargarSpritesComandante();
     void cargarSpritesEnemigoFusilero();
     void cargarSpritesGranadero();
-    void cargarSpritesFrancotirador();     // solo idle + shoot
+    void cargarSpritesFrancotirador();
     void cargarSpritesFusileroAliado();
     void cargarSpritesMedico();
 

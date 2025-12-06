@@ -6,6 +6,7 @@
 #include <QTimer>
 #include <QKeyEvent>
 #include <QLabel>
+#include <QSoundEffect>
 #include <QGraphicsItem>
 #include <vector>
 
@@ -115,7 +116,7 @@ private:
 
     bool aliadosEnCobertura;
     float fusileroCobX, fusileroCobY;
-    float medicoCobX,  medicoCobY;
+    float medicoCobX,  medicoCobY;   
 
     //  FUNCIONES INTERNAS
     void inicializarEscena();
@@ -137,6 +138,16 @@ private:
 
     bool hayLineaVision(float x1, float y1,
                         float x2, float y2) const;
+
+    float tiempoRecargaDisparoCmd;
+    float intervaloDisparoCmd;
+
+    // SONIDOS
+    QSoundEffect sfxExplosion;
+    QSoundEffect sfxDisparo;
+    QSoundEffect sfxDisparoSniper;
+    QSoundEffect sfxPasos;
+
 
 };
 
