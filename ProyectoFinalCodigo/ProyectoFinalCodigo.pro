@@ -24,7 +24,8 @@ SOURCES += \
     SoldadoEnemigo.cpp \
     SoldadoGranadero.cpp \
     main.cpp \
-    mainwindow.cpp
+    mainwindow.cpp \
+    menuwindow.cpp
 
 HEADERS += \
     Canonpesado.h \
@@ -41,10 +42,12 @@ HEADERS += \
     ProyectilGrafico.h \
     SoldadoEnemigo.h \
     SoldadoGranadero.h \
-    mainwindow.h
+    mainwindow.h \
+    menuwindow.h
 
 FORMS += \
-    mainwindow.ui
+    mainwindow.ui \
+    menuwindow.ui
 
 # Default rules for deployment.
 qnx: target.path = /tmp/$${TARGET}/bin

@@ -1,5 +1,6 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
+#include <QShowEvent>
 
 #include <QGraphicsView>
 #include <QKeyEvent>
@@ -7,13 +8,18 @@
 #include <QPixmap>
 #include <QGraphicsEllipseItem>
 #include <QGraphicsRectItem>
+#include <QPushButton>
 #include <QMessageBox>
 #include <QLabel>
 #include <cmath>
 #include <QPainterPath>
 #include <QMouseEvent>
 #include <QSoundEffect>
+#include <QVBoxLayout>
+#include <QPropertyAnimation>
+#include <QApplication>
 
+#include "MenuWindow.h"
 #include "PersonajeGrafico.h"
 #include "ProyectilGrafico.h"
 #include "Nivel.h"
@@ -191,6 +197,7 @@ MainWindow::MainWindow(QWidget *parent)
             explosionFrames.push_back(frame);
         }
     }
+
 
     // Actualizar textos iniciales del HUD
     actualizarHUD();
@@ -690,7 +697,6 @@ void MainWindow::moverComandante(float dx, float dy)
         verificarVictoria();
     }
 }
-
 
 //   Disparo del Comandante
 void MainWindow::dispararComandante()
@@ -1282,9 +1288,7 @@ void MainWindow::actualizarIAEnemigos()
 
             float paso = velMovimiento * DT;
 
-            // --------------------------
             // Separacion entre enemigos
-            // --------------------------
             const float DIST_SEP   = 50.0f;
             const float FUERZA_SEP = 0.4f;
 
@@ -1530,16 +1534,16 @@ void MainWindow::actualizarProyectiles()
 
                 if (comandanteModelo->getSalud() <= 0) {
                     comandanteSprite->setOpacity(0.3);
+                    nivelCompletado = true;
+
                     if (timerMovimiento)  timerMovimiento->stop();
                     if (timerProyectiles) timerProyectiles->stop();
                     if (timerIAEnemigos)  timerIAEnemigos->stop();
 
-                    QMessageBox::information(
-                        this,
-                        "Game Over",
-                        "Has sido eliminado por una granada."
-                        );
+                    mostrarMenuDerrota();
+                    return;   // salimos de actualizarProyectiles
                 }
+
             }
 
             // Borrar marca visual si existe
@@ -1634,18 +1638,17 @@ void MainWindow::actualizarProyectiles()
 
                 if (comandanteModelo->getSalud() <= 0) {
                     comandanteSprite->setOpacity(0.3);
+                    nivelCompletado = true;
 
                     if (timerMovimiento)  timerMovimiento->stop();
                     if (timerProyectiles) timerProyectiles->stop();
                     if (timerIAEnemigos)  timerIAEnemigos->stop();
 
-                    QMessageBox::information(
-                        this,
-                        "Game Over",
-                        "Has sido eliminado por fuego enemigo."
-                        );
+                    mostrarMenuDerrota();
+                    return;
                 }
             }
+
             else if (fusileroSprite && fusileroModelo &&
                      fusileroModelo->getSalud() > 0 &&
                      pg->collidesWithItem(fusileroSprite)) {
@@ -1879,4 +1882,183 @@ void MainWindow::crearEnemigos()
     agregarEnemigo(new Francotirador(), 1460.0f, 414.0f);
 
     agregarEnemigo(new SoldadoGranadero(), 1766.0, 270.0f);
+}
+
+//   Cartel inicio
+void MainWindow::mostrarCartelInicioNivel()
+{
+    QWidget *view = ui->graphicsView->viewport();
+
+    QLabel *cartel = new QLabel(view);
+    cartel->setText(
+        "Nivel 1 – Camino a Old Baldy\n\n"
+        "Objetivo:\n"
+        "• Avanza con tu escuadrón hasta la zona aliada.\n"
+        "• Evita granadas y elimina patrullas enemigas.\n\n"
+        "Controles:\n"
+        "WASD: Moverse\n"
+        "Espacio: Disparar\n"
+        "V: Atacar\n"
+        "C: Cubrirse"
+        );
+
+    cartel->setStyleSheet(
+        "QLabel {"
+        " background-color: rgba(0, 0, 0, 180);"
+        " color: white;"
+        " padding: 16px;"
+        " border-radius: 14px;"
+        " font-size: 14px;"
+        " font-weight: bold;"
+        "}"
+        );
+
+    cartel->setAlignment(Qt::AlignCenter);
+    cartel->setWordWrap(true);
+    cartel->adjustSize();
+
+    int minW = 420;
+    if (cartel->width() < minW)
+        cartel->setFixedWidth(minW);
+    cartel->adjustSize();
+
+    int w = view->width();
+    int h = view->height();
+    int x = (w - cartel->width()) / 2;
+    int y = (h - cartel->height()) / 2;
+
+    cartel->move(x, y);
+    cartel->show();
+    cartel->raise();
+
+    QPropertyAnimation *anim = new QPropertyAnimation(cartel, "windowOpacity");
+    anim->setDuration(5000);
+    anim->setStartValue(1.0);
+    anim->setEndValue(0.0);
+
+    connect(anim, &QPropertyAnimation::finished, cartel, &QLabel::deleteLater);
+    anim->start(QAbstractAnimation::DeleteWhenStopped);
+}
+
+void MainWindow::showEvent(QShowEvent *event)
+{
+    QMainWindow::showEvent(event);
+
+    static bool mostrado = false;
+    if (!mostrado) {
+        mostrado = true;
+        mostrarCartelInicioNivel();
+    }
+}
+
+void MainWindow::mostrarMenuDerrota()
+{
+    QWidget *view = ui->graphicsView->viewport();
+
+    QWidget *panel = new QWidget(view);
+    panel->setStyleSheet(
+        "QWidget {"
+        "  background-color: rgba(0, 0, 0, 200);"
+        "  border-radius: 18px;"
+        "}"
+        );
+
+    QVBoxLayout *layout = new QVBoxLayout(panel);
+    layout->setContentsMargins(30, 25, 30, 25);
+    layout->setSpacing(15);
+
+    QLabel *titulo = new QLabel("Has sido derrotado", panel);
+    titulo->setStyleSheet(
+        "QLabel {"
+        "  background-color: transparent;"
+        "  color: white;"
+        "  font-size: 20px;"
+        "  font-weight: bold;"
+        "}"
+        );
+    titulo->setAlignment(Qt::AlignCenter);
+
+    QLabel *sub = new QLabel("¿Qué deseas hacer?", panel);
+    sub->setStyleSheet(
+        "QLabel {"
+        "  background-color: transparent;"
+        "  color: white;"
+        "  font-size: 14px;"
+        "}"
+        );
+    sub->setAlignment(Qt::AlignCenter);
+
+    QPushButton *btnReintentar = new QPushButton("Reiniciar nivel", panel);
+    QPushButton *btnMenu       = new QPushButton("Volver al menu", panel);
+
+    QString estiloBoton =
+        "QPushButton {"
+        "  background-color: #ffaa00;"
+        "  color: black;"
+        "  padding: 6px 14px;"
+        "  border-radius: 8px;"
+        "  font-weight: bold;"
+        "}"
+        "QPushButton:hover {"
+        "  background-color: #ffcc33;"
+        "}"
+        "QPushButton:pressed {"
+        "  background-color: #cc8800;"
+        "}";
+
+    btnReintentar->setStyleSheet(estiloBoton);
+    btnMenu->setStyleSheet(estiloBoton);
+
+    btnReintentar->setCursor(Qt::PointingHandCursor);
+    btnMenu->setCursor(Qt::PointingHandCursor);
+
+    layout->addWidget(titulo);
+    layout->addWidget(sub);
+    layout->addSpacing(8);
+    layout->addWidget(btnReintentar);
+    layout->addWidget(btnMenu);
+
+    panel->setLayout(layout);
+    panel->adjustSize();
+
+    int w = view->width();
+    int h = view->height();
+    int x = (w - panel->width()) / 2;
+    int y = (h - panel->height()) / 2;
+    panel->move(x, y);
+
+    panel->show();
+    panel->raise();
+
+
+    // Reiniciar nivel
+    connect(btnReintentar, &QPushButton::clicked, this, [this, panel]() {
+        panel->deleteLater();
+        reiniciarNivel();
+    });
+
+    // Volver al menu
+    connect(btnMenu, &QPushButton::clicked, this, [this, panel]() {
+        panel->deleteLater();
+
+        QWidget *menuWidget = qobject_cast<QWidget*>(parent());
+        if (!menuWidget) {
+            MenuWindow *nuevoMenu = new MenuWindow();
+            nuevoMenu->show();
+        } else {
+            menuWidget->show();
+        }
+
+        this->close();
+    });
+}
+
+//   Reiniciar nivel
+void MainWindow::reiniciarNivel()
+{
+    QWidget *p = parentWidget();
+    MainWindow *nuevo = new MainWindow(p);
+    nuevo->show();
+
+    this->close();
 }

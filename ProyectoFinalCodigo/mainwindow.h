@@ -31,6 +31,7 @@ protected:
     void keyPressEvent(QKeyEvent *event) override;
     void keyReleaseEvent(QKeyEvent *event) override;
     void resizeEvent(QResizeEvent *event) override;
+    void showEvent(QShowEvent *event) override;
 
 private slots:
     void actualizarMovimiento();
@@ -132,6 +133,8 @@ private:
 
     void verificarVictoria();
 
+    void mostrarCartelInicioNivel();
+
 
     void moverComandante(float dx, float dy);
     bool verificarColisionConObstaculos(float nx, float ny);
@@ -147,6 +150,10 @@ private:
     QSoundEffect sfxDisparo;
     QSoundEffect sfxDisparoSniper;
     QSoundEffect sfxPasos;
+
+    // INDICADOR DE DERROTA
+    void mostrarMenuDerrota();
+    void reiniciarNivel();
 
 
 };

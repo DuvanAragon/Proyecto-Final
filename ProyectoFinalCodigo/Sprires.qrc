@@ -1,6 +1,6 @@
 <RCC>
     <qresource prefix="/Nivel1">
-        <file alias="FondoNivel1">build/Desktop_Qt_6_9_2_MinGW_64_bit-Debug/MapaNivel1.png</file>
+        <file alias="FondoNivel1">build/Desktop_Qt_6_9_2_MinGW_64_bit-Debug/Fondos/MapaNivel1.png</file>
     </qresource>
     <qresource prefix="/SpriteComandante">
         <file alias="Comandante1">build/Desktop_Qt_6_9_2_MinGW_64_bit-Debug/SpriteComandante/rifle1.png</file>
@@ -66,5 +66,10 @@
         <file alias="Explosion4">build/Desktop_Qt_6_9_2_MinGW_64_bit-Debug/SpriteExplosion/Explosion4.png</file>
         <file alias="Explosion5">build/Desktop_Qt_6_9_2_MinGW_64_bit-Debug/SpriteExplosion/Explosion5.png</file>
         <file alias="Explosion6">build/Desktop_Qt_6_9_2_MinGW_64_bit-Debug/SpriteExplosion/Explosion6.png</file>
+    </qresource>
+    <qresource prefix="/Menu">
+        <file alias="BotonIniciar">build/Desktop_Qt_6_9_2_MinGW_64_bit-Debug/Fondos/Menu/BotonIniciar.png</file>
+        <file alias="BotonSalir">build/Desktop_Qt_6_9_2_MinGW_64_bit-Debug/Fondos/Menu/BotonSalir.png</file>
+        <file alias="FondoMenu">build/Desktop_Qt_6_9_2_MinGW_64_bit-Debug/Fondos/Menu/FondoMenu.png</file>
     </qresource>
 </RCC>
