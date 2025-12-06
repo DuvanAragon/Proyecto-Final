@@ -1,27 +1,19 @@
 #ifndef PERSONAJE_H
 #define PERSONAJE_H
 
-class Personaje {
-protected:
-    float x;
-    float y;
-    float vx;
-    float vy;
-    int   salud;
-    int   saludMax;
-    bool  esAliado;
-    int   danoBase;
-
+class Personaje
+{
 public:
     // Constructores
     Personaje();
-    Personaje(float x,
-              float y,
-              int   saludMax,
-              bool  esAliado,
-              int   danoBase);
+    Personaje(float xParam,
+              float yParam,
+              int   saludMaxParam,
+              bool  esAliadoParam,
+              int   danoBaseParam);
 
-    virtual ~Personaje() = default;
+    // Destructor
+    virtual ~Personaje() {}
 
     // Getters
     float getX() const;
@@ -41,10 +33,25 @@ public:
     void setEsAliado(bool _esAliado);
     void setDanoBase(int _danoBase);
 
-    // Metodos
+    // Métodos básicos
     virtual void mover(float dt);
     virtual void recibirDano(int cantidad);
     virtual void atacar(Personaje* objetivo);
+
+    // Método de actualización genérico (IA, etc.)
+    virtual void actualizar(float dt);
+
+
+
+protected:
+    float x;
+    float y;
+    float vx;
+    float vy;
+    int   salud;
+    int   saludMax;
+    bool  esAliado;
+    int   danoBase;
 };
 
 #endif // PERSONAJE_H

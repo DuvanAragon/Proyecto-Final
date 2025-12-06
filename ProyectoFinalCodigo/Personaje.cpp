@@ -101,7 +101,7 @@ void Personaje::setDanoBase(int _danoBase) {
     danoBase = _danoBase;
 }
 
-// Metodos
+// Métodos
 void Personaje::mover(float dt) {
     if (dt < 0.0f) {
         return;
@@ -132,3 +132,7 @@ void Personaje::atacar(Personaje* objetivo) {
     }
     objetivo->recibirDano(danoBase);
 }
+
+void Personaje::actualizar(float) {}
+
+

@@ -1,0 +1,70 @@
+<RCC>
+    <qresource prefix="/Nivel1">
+        <file alias="FondoNivel1">build/Desktop_Qt_6_9_2_MinGW_64_bit-Debug/MapaNivel1.png</file>
+    </qresource>
+    <qresource prefix="/SpriteComandante">
+        <file alias="Comandante1">build/Desktop_Qt_6_9_2_MinGW_64_bit-Debug/SpriteComandante/rifle1.png</file>
+        <file alias="Comandante2">build/Desktop_Qt_6_9_2_MinGW_64_bit-Debug/SpriteComandante/rifle2.png</file>
+        <file alias="Comandante3">build/Desktop_Qt_6_9_2_MinGW_64_bit-Debug/SpriteComandante/rifle3.png</file>
+        <file alias="Comandante4">build/Desktop_Qt_6_9_2_MinGW_64_bit-Debug/SpriteComandante/rifle4.png</file>
+        <file alias="Comandante5">build/Desktop_Qt_6_9_2_MinGW_64_bit-Debug/SpriteComandante/rifle5.png</file>
+        <file alias="Comandante6">build/Desktop_Qt_6_9_2_MinGW_64_bit-Debug/SpriteComandante/rifle6.png</file>
+        <file alias="Comandante7">build/Desktop_Qt_6_9_2_MinGW_64_bit-Debug/SpriteComandante/rifle7.png</file>
+        <file alias="Comandante8">build/Desktop_Qt_6_9_2_MinGW_64_bit-Debug/SpriteComandante/rifle8.png</file>
+        <file alias="Comandante9">build/Desktop_Qt_6_9_2_MinGW_64_bit-Debug/SpriteComandante/rifle9.png</file>
+    </qresource>
+    <qresource prefix="/SpriteEnemigo1">
+        <file alias="EnemigoFusilero1">build/Desktop_Qt_6_9_2_MinGW_64_bit-Debug/SpriteEnemigo1/rifle1.png</file>
+        <file alias="EnemigoFusilero2">build/Desktop_Qt_6_9_2_MinGW_64_bit-Debug/SpriteEnemigo1/rifle2.png</file>
+        <file alias="EnemigoFusilero3">build/Desktop_Qt_6_9_2_MinGW_64_bit-Debug/SpriteEnemigo1/rifle3.png</file>
+        <file alias="EnemigoFusilero4">build/Desktop_Qt_6_9_2_MinGW_64_bit-Debug/SpriteEnemigo1/rifle4.png</file>
+        <file alias="EnemigoFusilero5">build/Desktop_Qt_6_9_2_MinGW_64_bit-Debug/SpriteEnemigo1/rifle5.png</file>
+        <file alias="EnemigoFusilero6">build/Desktop_Qt_6_9_2_MinGW_64_bit-Debug/SpriteEnemigo1/rifle6.png</file>
+        <file alias="EnemigoFusilero7">build/Desktop_Qt_6_9_2_MinGW_64_bit-Debug/SpriteEnemigo1/rifle7.png</file>
+        <file alias="EnemigoFusilero8">build/Desktop_Qt_6_9_2_MinGW_64_bit-Debug/SpriteEnemigo1/rifle8.png</file>
+        <file alias="EnemigoFusilero9">build/Desktop_Qt_6_9_2_MinGW_64_bit-Debug/SpriteEnemigo1/rifle9.png</file>
+    </qresource>
+    <qresource prefix="/SpriteMedico">
+        <file alias="Medico1">build/Desktop_Qt_6_9_2_MinGW_64_bit-Debug/SpriteMedico/rifle1.png</file>
+        <file alias="Medico2">build/Desktop_Qt_6_9_2_MinGW_64_bit-Debug/SpriteMedico/rifle2.png</file>
+        <file alias="Medico3">build/Desktop_Qt_6_9_2_MinGW_64_bit-Debug/SpriteMedico/rifle3.png</file>
+        <file alias="Medico4">build/Desktop_Qt_6_9_2_MinGW_64_bit-Debug/SpriteMedico/rifle4.png</file>
+        <file alias="Medico5">build/Desktop_Qt_6_9_2_MinGW_64_bit-Debug/SpriteMedico/rifle5.png</file>
+        <file alias="Medico6">build/Desktop_Qt_6_9_2_MinGW_64_bit-Debug/SpriteMedico/rifle6.png</file>
+        <file alias="Medico7">build/Desktop_Qt_6_9_2_MinGW_64_bit-Debug/SpriteMedico/rifle7.png</file>
+        <file alias="Medico8">build/Desktop_Qt_6_9_2_MinGW_64_bit-Debug/SpriteMedico/rifle8.png</file>
+    </qresource>
+    <qresource prefix="/SpriteGranadero">
+        <file alias="Granadero1">build/Desktop_Qt_6_9_2_MinGW_64_bit-Debug/SpriteGranadero/bazooka1.png</file>
+        <file alias="Granadero2">build/Desktop_Qt_6_9_2_MinGW_64_bit-Debug/SpriteGranadero/bazooka2.png</file>
+        <file alias="Granadero3">build/Desktop_Qt_6_9_2_MinGW_64_bit-Debug/SpriteGranadero/bazooka3.png</file>
+        <file alias="Granadero4">build/Desktop_Qt_6_9_2_MinGW_64_bit-Debug/SpriteGranadero/bazooka4.png</file>
+        <file alias="Granadero5">build/Desktop_Qt_6_9_2_MinGW_64_bit-Debug/SpriteGranadero/bazooka5.png</file>
+        <file alias="Granadero6">build/Desktop_Qt_6_9_2_MinGW_64_bit-Debug/SpriteGranadero/bazooka6.png</file>
+        <file alias="Granadero7">build/Desktop_Qt_6_9_2_MinGW_64_bit-Debug/SpriteGranadero/bazooka7.png</file>
+        <file alias="Granadero8">build/Desktop_Qt_6_9_2_MinGW_64_bit-Debug/SpriteGranadero/bazooka8.png</file>
+    </qresource>
+    <qresource prefix="/SpriteFrancotirador">
+        <file alias="Francotirador1">build/Desktop_Qt_6_9_2_MinGW_64_bit-Debug/SpriteFrancotirador/rifle6.png</file>
+        <file alias="Francotirador2">build/Desktop_Qt_6_9_2_MinGW_64_bit-Debug/SpriteFrancotirador/rifle9.png</file>
+    </qresource>
+    <qresource prefix="/SpriteSoldado">
+        <file alias="SoldadoRegular1">build/Desktop_Qt_6_9_2_MinGW_64_bit-Debug/SpriteSoldado/rifle1.png</file>
+        <file alias="SoldadoRegular2">build/Desktop_Qt_6_9_2_MinGW_64_bit-Debug/SpriteSoldado/rifle2.png</file>
+        <file alias="SoldadoRegular3">build/Desktop_Qt_6_9_2_MinGW_64_bit-Debug/SpriteSoldado/rifle3.png</file>
+        <file alias="SoldadoRegular4">build/Desktop_Qt_6_9_2_MinGW_64_bit-Debug/SpriteSoldado/rifle4.png</file>
+        <file alias="SoldadoRegular5">build/Desktop_Qt_6_9_2_MinGW_64_bit-Debug/SpriteSoldado/rifle5.png</file>
+        <file alias="SoldadoRegular6">build/Desktop_Qt_6_9_2_MinGW_64_bit-Debug/SpriteSoldado/rifle6.png</file>
+        <file alias="SoldadoRegular7">build/Desktop_Qt_6_9_2_MinGW_64_bit-Debug/SpriteSoldado/rifle7.png</file>
+        <file alias="SoldadoRegular8">build/Desktop_Qt_6_9_2_MinGW_64_bit-Debug/SpriteSoldado/rifle8.png</file>
+        <file alias="SoldadoRegular9">build/Desktop_Qt_6_9_2_MinGW_64_bit-Debug/SpriteSoldado/rifle9.png</file>
+    </qresource>
+    <qresource prefix="/SpriteExplosionGranada">
+        <file alias="Explosion1">build/Desktop_Qt_6_9_2_MinGW_64_bit-Debug/SpriteExplosion/Explosion1.png</file>
+        <file alias="Explosion2">build/Desktop_Qt_6_9_2_MinGW_64_bit-Debug/SpriteExplosion/Explosion2.png</file>
+        <file alias="Explosion3">build/Desktop_Qt_6_9_2_MinGW_64_bit-Debug/SpriteExplosion/Explosion3.png</file>
+        <file alias="Explosion4">build/Desktop_Qt_6_9_2_MinGW_64_bit-Debug/SpriteExplosion/Explosion4.png</file>
+        <file alias="Explosion5">build/Desktop_Qt_6_9_2_MinGW_64_bit-Debug/SpriteExplosion/Explosion5.png</file>
+        <file alias="Explosion6">build/Desktop_Qt_6_9_2_MinGW_64_bit-Debug/SpriteExplosion/Explosion6.png</file>
+    </qresource>
+</RCC>

@@ -9,35 +9,39 @@ CONFIG += c++17
 #DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
 
 SOURCES += \
-    canonpesado.cpp \
-    comandante.cpp \
-    controladorjuego.cpp \
-    escuadron.cpp \
-    francotirador.cpp \
-    fusilero.cpp \
+    Canonpesado.cpp \
+    Comandante.cpp \
+    ControladorJuego.cpp \
+    Escuadron.cpp \
+    Francotirador.cpp \
+    Fusilero.cpp \
+    Medico.cpp \
+    Nivel.cpp \
+    Personaje.cpp \
+    PersonajeGrafico.cpp \
+    Proyectil.cpp \
+    ProyectilGrafico.cpp \
+    SoldadoEnemigo.cpp \
+    SoldadoGranadero.cpp \
     main.cpp \
-    mainwindow.cpp \
-    medico.cpp \
-    nivel.cpp \
-    personaje.cpp \
-    proyectil.cpp \
-    soldadoenemigo.cpp \
-    soldadogranadero.cpp
+    mainwindow.cpp
 
 HEADERS += \
-    canonpesado.h \
-    comandante.h \
-    controladorjuego.h \
-    escuadron.h \
-    francotirador.h \
-    fusilero.h \
-    mainwindow.h \
-    medico.h \
-    nivel.h \
-    personaje.h \
-    proyectil.h \
-    soldadoenemigo.h \
-    soldadogranadero.h
+    Canonpesado.h \
+    Comandante.h \
+    ControladorJuego.h \
+    Escuadron.h \
+    Francotirador.h \
+    Fusilero.h \
+    Medico.h \
+    Nivel.h \
+    Personaje.h \
+    PersonajeGrafico.h \
+    Proyectil.h \
+    ProyectilGrafico.h \
+    SoldadoEnemigo.h \
+    SoldadoGranadero.h \
+    mainwindow.h
 
 FORMS += \
     mainwindow.ui
@@ -46,3 +50,6 @@ FORMS += \
 qnx: target.path = /tmp/$${TARGET}/bin
 else: unix:!android: target.path = /opt/$${TARGET}/bin
 !isEmpty(target.path): INSTALLS += target
+
+RESOURCES += \
+    Sprires.qrc

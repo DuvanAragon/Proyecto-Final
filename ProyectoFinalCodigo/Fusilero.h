@@ -27,13 +27,14 @@ public:
     float getCadenciaDisparo() const;
     float getTiempoDesdeUltimoDisparo() const;
 
+
     // Setters
     void setAlcanceDisparo(float _alcanceDisparo);
     void setCadenciaDisparo(float _cadenciaDisparo);
     void setTiempoDesdeUltimoDisparo(float _tiempo);
 
     // Metodos
-    void actualizar(float dt);
+    void actualizar(float dt)override;
     void atacar(Personaje* objetivo) override;
     Proyectil* disparar(Personaje* objetivo, float velocidadInicial);
 };

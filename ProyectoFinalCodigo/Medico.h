@@ -24,6 +24,7 @@ public:
 
     // Getters
     int   getCantidadCura() const;
+
     float getRadioCuracion() const;
     float getCooldownCuracion() const;
     float getTiempoDesdeUltimaCuracion() const;
