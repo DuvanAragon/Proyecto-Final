@@ -27,17 +27,13 @@ PersonajeLateralGrafico::PersonajeLateralGrafico(Personaje *modelo,
         setPixmap(frameQuieto);
     }
 
-    // Timer de animación (como en nivel 1, avance de frames)
     timerAnim = new QTimer(this);
     connect(timerAnim, &QTimer::timeout,
             this, &PersonajeLateralGrafico::avanzarFrame);
     timerAnim->start(120); // 120 ms por frame
 }
 
-PersonajeLateralGrafico::~PersonajeLateralGrafico()
-{
-    // timerAnim se destruye solo, this es su parent
-}
+PersonajeLateralGrafico::~PersonajeLateralGrafico(){}
 
 void PersonajeLateralGrafico::cargarFramesMovimiento(const QString &prefijoFrames,
                                                      int numFrames)
@@ -48,8 +44,7 @@ void PersonajeLateralGrafico::cargarFramesMovimiento(const QString &prefijoFrame
     if (prefijoFrames.isEmpty() || numFrames <= 0)
         return;
 
-    // Igual que en nivel 1: cargamos imágenes una por una:
-    // prefijo0, prefijo1, prefijo2, ...
+
     for (int i = 1; i < numFrames; ++i) {
         QString ruta = QString("%1%2").arg(prefijoFrames).arg(i);
         QPixmap frame;
@@ -83,7 +78,6 @@ void PersonajeLateralGrafico::avanzarFrame()
     if (framesMovimiento.isEmpty())
         return;
 
-    // Si no se está moviendo o está agachado, no animamos
     if (!enMovimiento || agachado) {
         return;
     }
@@ -96,18 +90,14 @@ void PersonajeLateralGrafico::actualizarDesdeModelo()
     if (!modelo)
         return;
 
-    // Escala: aliados más grandes que enemigos
     float escala = modelo->getEsAliado() ? 5.0f : 3.5f;
 
-    // Para enemigos: decidir automáticamente si se están moviendo
     if (!modelo->getEsAliado()) {
         float vx = modelo->getVx();
         float vy = modelo->getVy();
         bool seMueve = (vx != 0.0f || vy != 0.0f);
-        setEnMovimiento(seMueve);   // esto hace que avanzarFrame() funcione
+        setEnMovimiento(seMueve);
     }
-    // Para aliados (comandante), enMovimiento lo controla la ventana
-    // con setEnMovimiento(...) antes de llamar a actualizarDesdeModelo().
 
     const QPixmap *pix = nullptr;
 

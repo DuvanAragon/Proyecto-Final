@@ -10,7 +10,7 @@ namespace Ui {
 class MenuWindow;
 }
 
-class MainWindow;   // Ventana del juego (la tuya)
+class MainWindow;
 
 class MenuWindow : public QMainWindow
 {
