@@ -45,6 +45,11 @@ public:
     void actualizarIA(Personaje* objetivo, float dt);
     void atacar(Personaje* objetivo) override;
     Proyectil* disparar(Personaje* objetivo, float velocidadInicial);
+    Proyectil* dispararConError(Personaje* objetivo,
+                                float velocidadInicial,
+                                float errorMaxGrados);
+
+
 };
 
 #endif // SOLDADO_ENEMIGO_H

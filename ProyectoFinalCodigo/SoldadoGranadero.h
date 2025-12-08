@@ -13,6 +13,7 @@ private:
     float tiempoDesdeUltGranada;
     float velocidadMovimiento;
     float radioExplosion;
+    bool lanzoEnEsteFrame;
 
 public:
     // Constructores
@@ -35,6 +36,8 @@ public:
     float getTiempoDesdeUltGranada() const;
     float getVelocidadMovimiento() const;
     float getRadioExplosion() const;
+    bool getLanzoEnEsteFrame() const { return lanzoEnEsteFrame; }
+
 
     // Setters
     void setRangoVision(float _rangoVision);
@@ -46,7 +49,12 @@ public:
 
     // Metodos
     void actualizarIA(Personaje* objetivo, float dt);
+    void resetLanzoEnEsteFrame() { lanzoEnEsteFrame = false; }
     Proyectil* lanzarGranada(Personaje* objetivo, float velocidadInicial);
+    Proyectil* lanzarGranadaConError(Personaje* objetivo,
+                                     float velocidadInicial,
+                                     float errorMaxDistancia);
+
 };
 
 #endif // SOLDADO_GRANADERO_H

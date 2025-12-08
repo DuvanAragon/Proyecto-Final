@@ -22,9 +22,15 @@ public:
 
     // Setters
     void setNumeroNivel(int _numeroNivel);
+    void setJugadorAgachado(bool _jugadorAgachado);
+
 
     // Getters
     int  getNumeroNivel() const { return numeroNivel; }
+    bool getJugadorAgachado() const;
+    float getTiempoRestante() const;
+
+
 
     Fusilero* getFusilero();
     Medico*   getMedico();
@@ -78,6 +84,8 @@ public:
                                  float radio,
                                  int dano);
 
+
+
 private:
     // Configuracion inicial de cada nivel
     void configurarNivel1();
@@ -95,11 +103,15 @@ private:
     float tiempoMaximo;
     float deltaTiempo;
 
+    int oleadaActual;
+
     float radioImpacto;
     float limiteMapaX;
 
     float cdComandante;
     float tiempoDesdeDisparoCom;
+
+    bool jugadorAgachado;
 
     // Entidades propias del nivel
     Comandante       comandante;
@@ -116,6 +128,18 @@ private:
 
     // Proyectiles dinamicos
     std::vector<Proyectil*> proyectiles;
+    std::vector<SoldadoEnemigo*> oleadasFusileros;
+    std::vector<SoldadoGranadero*> oleadasGranaderos;
+
+    float tiempoDesdeUltOleada = 0.0f;
+    float intervaloOleadas     = 7.0f;
+    void limpiarOleadasNivel2();
+    void generarOleadaNivel2();
+
+    std::vector<SoldadoEnemigo*> fusilerosHordasN2;
+    std::vector<SoldadoGranadero*> granaderosHordasN2;
+
+
 };
 
 #endif // NIVEL_H

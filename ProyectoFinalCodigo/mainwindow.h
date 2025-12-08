@@ -130,11 +130,8 @@ private:
     void crearZonaObjetivo();
 
     void dispararComandante();
-
     void verificarVictoria();
-
     void mostrarCartelInicioNivel();
-
 
     void moverComandante(float dx, float dy);
     bool verificarColisionConObstaculos(float nx, float ny);

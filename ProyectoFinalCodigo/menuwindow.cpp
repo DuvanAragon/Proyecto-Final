@@ -1,4 +1,5 @@
 #include "MenuWindow.h"
+#include "nivel2window.h"
 #include "ui_menuwindow.h"
 
 #include "mainwindow.h"
@@ -12,6 +13,8 @@ MenuWindow::MenuWindow(QWidget *parent)
     , gameWindow(nullptr)
 {
     ui->setupUi(this);
+
+
 
     //  Fondo del menu
     this->setStyleSheet(
@@ -31,7 +34,7 @@ MenuWindow::MenuWindow(QWidget *parent)
         "    padding-top: 2px;"
         "}";
 
-    //  Botón INICIAR
+    //  Boton INICIAR
     {
         QPixmap pixIniciar(":/Menu/BotonIniciar");
         if (!pixIniciar.isNull()) {
@@ -53,7 +56,7 @@ MenuWindow::MenuWindow(QWidget *parent)
         ui->btnIniciar->setText("");
     }
 
-    //  Botón SALIR
+    //  Boton SALIR
     {
         QPixmap pixSalir(":/Menu/BotonSalir");
         if (!pixSalir.isNull()) {
@@ -92,7 +95,7 @@ void MenuWindow::on_btnIniciar_clicked()
     gameWindow->show();
 
     QPropertyAnimation *animIn = new QPropertyAnimation(gameWindow, "windowOpacity");
-    animIn->setDuration(450);        // duracion en ms
+    animIn->setDuration(450);
     animIn->setStartValue(0.0);
     animIn->setEndValue(1.0);
     animIn->start(QAbstractAnimation::DeleteWhenStopped);

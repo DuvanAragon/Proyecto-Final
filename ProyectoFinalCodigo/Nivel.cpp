@@ -19,8 +19,26 @@ Nivel::Nivel() {
     cdComandante = 2.0f;
     tiempoDesdeDisparoCom = 0.0f;
 
+    jugadorAgachado = false;
+
     setNumeroNivel(1);
+    oleadaActual = 1;
+    tiempoDesdeUltOleada = 0.0f;
+    intervaloOleadas     = 5.0f;
+
+
 }
+
+// Destructor
+Nivel::~Nivel() {
+    for (Proyectil* p : proyectiles) {
+        delete p;
+    }
+    proyectiles.clear();
+
+    limpiarOleadasNivel2();
+}
+
 
 // Seters
 void Nivel::setNumeroNivel(int _numeroNivel) {
@@ -39,6 +57,11 @@ void Nivel::setNumeroNivel(int _numeroNivel) {
     } else {
         configurarNivel3();
     }
+}
+
+void Nivel::setJugadorAgachado(bool _jugadorAgachado)
+{
+    jugadorAgachado = _jugadorAgachado;
 }
 
 // Getters
@@ -62,7 +85,11 @@ const Comandante* Nivel::getComandante() const {
     return &comandante;
 }
 
-// Metodos privados de configuracion
+bool Nivel::getJugadorAgachado() const
+{
+    return jugadorAgachado;
+}
+
 void Nivel::configurarNivel1() {
     tiempoMaximo = 20.0f;
 
@@ -81,20 +108,53 @@ void Nivel::configurarNivel1() {
 }
 
 void Nivel::configurarNivel2() {
-    tiempoMaximo = 25.0f;
+    // Duración del nivel 2
+    tiempoMaximo         = 90.0f;
+    tiempoActual         = 0.0f;
+    tiempoDesdeDisparoCom = 0.0f;
 
-    comandante.setPosicion(0.0f, 0.0f);
-    medico.setPosicion(-12.0f, 0.0f);
-    fusilero.setPosicion(4.0f, 0.0f);
-    francotirador.setPosicion(8.0f, 2.0f);
+    // Oleadas
+    oleadaActual         = 1;
+    tiempoDesdeUltOleada = 0.0f;
+    intervaloOleadas     = 15.0f;
 
-    enemigo.setPosicion(70.0f, 0.0f);
-    granadero.setPosicion(90.0f, 0.0f);
+    limiteMapaX = 5000.0f;
+
+    enemigo.setRangoAtaque(1000.0f);
+    enemigo.setCadenciaDisparo(3.0f);
+
+    granadero.setRangoLanzamiento(1200.0f);
+    granadero.setCooldownGranada(5.0f);
+
+    aliados.clear();
+    enemigos.clear();
+    proyectiles.clear();
+
+    comandante.setPosicion(300.0f, 0.0f);
+    fusilero.setPosicion(260.0f, 0.0f);
 
     aliados.push_back(&comandante);
-    aliados.push_back(&medico);
-    aliados.push_back(&fusilero);
-    aliados.push_back(&francotirador);
+
+    enemigo.setRangoAtaque(1350.0f);
+    enemigo.setCadenciaDisparo(2.8f);
+    enemigo.setVelocidadMovimiento(30.0f);
+
+    granadero.setPosicion(1490.0f, 0.0f);
+    granadero.setSaludMax(90);
+    granadero.setSalud(90);
+    granadero.setDanoBase(25);
+    granadero.setRangoVision(2000.0f);
+    granadero.setRangoLanzamiento(1350.0f);
+
+    granadero.setCooldownGranada(9.5f);
+
+    granadero.setVelocidadMovimiento(30.0f);
+    granadero.setRadioExplosion(40.0f);
+
+    limpiarOleadasNivel2();
+
+    fusilerosHordasN2.push_back(&enemigo);
+    granaderosHordasN2.push_back(&granadero);
 
     enemigos.push_back(&enemigo);
     enemigos.push_back(&granadero);
@@ -224,73 +284,151 @@ void Nivel::actualizarProyectiles() {
 
 // Metodos publicos
 void Nivel::iniciar() {
-    tiempoActual = 0.0f;
-    tiempoDesdeDisparoCom = 0.0f;
+    tiempoActual           = 0.0f;
+    tiempoDesdeDisparoCom  = 0.0f;
+    tiempoDesdeUltOleada   = 0.0f;
 }
 
 void Nivel::actualizarPaso() {
     if (estaTerminado()) return;
 
-    tiempoActual        += deltaTiempo;
+    tiempoActual         += deltaTiempo;
     tiempoDesdeDisparoCom += deltaTiempo;
 
     for (Personaje* a : aliados) {
-        a->actualizar(deltaTiempo);
+        if (a) a->actualizar(deltaTiempo);
     }
 
-    if (numeroNivel >= 1 && enemigo.getSalud() > 0) {
+    if ((numeroNivel == 1 || numeroNivel == 3) && enemigo.getSalud() > 0) {
         enemigo.actualizarIA(&comandante, deltaTiempo);
     }
-    if (numeroNivel >= 2 && granadero.getSalud() > 0) {
+    if ((numeroNivel == 1 || numeroNivel == 3) && granadero.getSalud() > 0) {
         granadero.actualizarIA(&comandante, deltaTiempo);
     }
-    if (numeroNivel >= 3 && canon.getSalud() > 0) {
-        canon.actualizarEstado(deltaTiempo);
-    }
 
-    Personaje* herido = buscarMasHeridoAliado();
-    if (herido != nullptr && medico.getSalud() > 0) {
-        medico.curar(herido);
-    }
-
-    Personaje* objetivo = primerEnemigoVivo();
-    if (objetivo != nullptr) {
-        if (tiempoDesdeDisparoCom >= cdComandante && comandante.getSalud() > 0) {
-            Proyectil* p = comandante.disparar(objetivo, 50.0f);
-            if (p != nullptr) {
-                proyectiles.push_back(p);
-                tiempoDesdeDisparoCom = 0.0f;
+    if (numeroNivel == 2) {
+        for (SoldadoEnemigo* fus : fusilerosHordasN2) {
+            if (fus && fus->getSalud() > 0) {
+                fus->actualizarIA(&comandante, deltaTiempo);
             }
         }
-
-        if (fusilero.getSalud() > 0) {
-            Proyectil* pF = fusilero.disparar(objetivo, 45.0f);
-            if (pF != nullptr) {
-                proyectiles.push_back(pF);
+        for (SoldadoGranadero* g : granaderosHordasN2) {
+            if (g && g->getSalud() > 0) {
+                g->actualizarIA(&comandante, deltaTiempo);
             }
         }
-
-        if (francotirador.getSalud() > 0 && numeroNivel >= 2) {
-            francotirador.comenzarApuntar(objetivo);
-            Proyectil* pS = francotirador.disparar(objetivo, 60.0f);
-            if (pS != nullptr) {
-                proyectiles.push_back(pS);
+        for (SoldadoEnemigo* fus : fusilerosHordasN2) {
+            if (fus && fus->getSalud() > 0) {
+                fus->actualizarIA(&comandante, deltaTiempo);
+            }
+        }
+        for (SoldadoGranadero* gran : granaderosHordasN2) {
+            if (gran && gran->getSalud() > 0) {
+                gran->actualizarIA(&comandante, deltaTiempo);
             }
         }
     }
 
-    if (enemigo.getSalud() > 0) {
-        Proyectil* pE = enemigo.disparar(&comandante, 40.0f);
-        if (pE != nullptr) {
-            proyectiles.push_back(pE);
+
+    // medico cura aliado mas herido
+    if (numeroNivel != 2) {
+        Personaje* herido = buscarMasHeridoAliado();
+        if (herido != nullptr && medico.getSalud() > 0) {
+            medico.curar(herido);
         }
     }
-    if (numeroNivel >= 2 && granadero.getSalud() > 0) {
-        Proyectil* pG = granadero.lanzarGranada(&comandante, 35.0f);
-        if (pG != nullptr) {
-            proyectiles.push_back(pG);
+
+    // comandante y fusilero atacan al primer enemigo vivo
+    if (numeroNivel != 2) {
+        Personaje* objetivo = primerEnemigoVivo();
+        if (objetivo != nullptr) {
+            if (tiempoDesdeDisparoCom >= cdComandante && comandante.getSalud() > 0) {
+                Proyectil* p = comandante.disparar(objetivo, 50.0f);
+                if (p != nullptr) {
+                    proyectiles.push_back(p);
+                    tiempoDesdeDisparoCom = 0.0f;
+                }
+            }
+
+            if (fusilero.getSalud() > 0) {
+                Proyectil* pF = fusilero.disparar(objetivo, 45.0f);
+                if (pF != nullptr) {
+                    proyectiles.push_back(pF);
+                }
+            }
         }
     }
+
+    // factor de dificultad 0..1 segun tiempo del nivel
+    float factorDif = 0.0f;
+    if (tiempoMaximo > 0.0f) {
+        factorDif = tiempoActual / tiempoMaximo;
+        if (factorDif < 0.0f) factorDif = 0.0f;
+        if (factorDif > 1.0f) factorDif = 1.0f;
+    }
+
+
+    if (numeroNivel == 2) {
+        //  FUSILEROS DE LAS HORDAS
+        float errorGrados;
+        if (factorDif < 0.33f) errorGrados = 25.0f;
+        else if (factorDif < 0.66f) errorGrados = 12.0f;
+        else errorGrados = 5.0f;
+
+        bool comandanteVisible = true;
+        if (factorDif >= 0.66f) {
+            // en la parte final solo disparan si el jugador esta de pie
+            comandanteVisible = !jugadorAgachado;
+        }
+
+        if (comandanteVisible) {
+            for (SoldadoEnemigo* fus : fusilerosHordasN2) {
+                if (!fus) continue;
+                if (fus->getSalud() <= 0) continue;
+
+                Proyectil* pE = fus->dispararConError(&comandante,
+                                                      40.0f,
+                                                      errorGrados);
+                if (pE != nullptr) {
+                    proyectiles.push_back(pE);
+                }
+            }
+        }
+
+        //  GRANADEROS DE LAS HORDAS
+        float errorDist;
+        if (factorDif < 0.33f) errorDist = 40.0f;
+        else if (factorDif < 0.66f) errorDist = 20.0f;
+        else errorDist = 6.0f;
+
+        for (SoldadoGranadero* g : granaderosHordasN2) {
+            if (!g) continue;
+            if (g->getSalud() <= 0) continue;
+
+            Proyectil* pG = g->lanzarGranadaConError(&comandante,
+                                                     70.0f,
+                                                     errorDist);
+            if (pG != nullptr) {
+                proyectiles.push_back(pG);
+            }
+        }
+    }
+    else {
+        if (enemigo.getSalud() > 0) {
+            Proyectil* pE = enemigo.disparar(&comandante, 40.0f);
+            if (pE != nullptr) {
+                proyectiles.push_back(pE);
+            }
+        }
+
+        if (numeroNivel != 2 && granadero.getSalud() > 0) {
+            Proyectil* pG = granadero.lanzarGranada(&comandante, 35.0f);
+            if (pG != nullptr) {
+                proyectiles.push_back(pG);
+            }
+        }
+    }
+
     if (numeroNivel >= 3 && canon.getSalud() > 0) {
         Proyectil* pC = canon.disparar(&comandante, 30.0f);
         if (pC != nullptr) {
@@ -298,10 +436,28 @@ void Nivel::actualizarPaso() {
         }
     }
 
+    if (numeroNivel == 2 && tiempoActual < tiempoMaximo) {
+        tiempoDesdeUltOleada += deltaTiempo;
+
+        if (tiempoDesdeUltOleada >= intervaloOleadas) {
+            tiempoDesdeUltOleada = 0.0f;
+            generarOleadaNivel2();
+        }
+    }
+
     actualizarProyectiles();
+
 }
 
-bool Nivel::hayVictoria() const {
+bool Nivel::hayVictoria() const
+{
+    // Nivel 2: victoria por supervivencia
+    if (numeroNivel == 2) {
+        return (tiempoActual >= tiempoMaximo) &&
+               (comandante.getSalud() > 0);
+    }
+
+    // Niveles 1 y 3: victoria por eliminar a todos los enemigos
     bool hayAlgunEnemigo = false;
 
     for (Personaje* e : enemigos) {
@@ -314,7 +470,6 @@ bool Nivel::hayVictoria() const {
     return hayAlgunEnemigo;
 }
 
-
 bool Nivel::hayDerrota() const {
     return comandante.getSalud() <= 0;
 }
@@ -325,15 +480,6 @@ bool Nivel::hayTiempoAgotado() const {
 
 bool Nivel::estaTerminado() const {
     return hayVictoria() || hayDerrota() || hayTiempoAgotado();
-}
-
-
-// Destructor
-Nivel::~Nivel() {
-    for (Proyectil* p : proyectiles) {
-        delete p;
-    }
-    proyectiles.clear();
 }
 
 bool Nivel::verificarVictoria(const Comandante* comandante,
@@ -535,4 +681,86 @@ Medico* Nivel::getMedico()
     return &medico;
 }
 
+void Nivel::limpiarOleadasNivel2()
+{
+    // Borrar enemigos dinamicos de fusileros
+    for (SoldadoEnemigo* e : fusilerosHordasN2) {
+        // No borrar el enemigo base (miembro de la clase)
+        if (e && e != &enemigo) {
+            delete e;
+        }
+    }
+    fusilerosHordasN2.clear();
 
+    // Borrar enemigos dinamicos de granaderos
+    for (SoldadoGranadero* g : granaderosHordasN2) {
+        if (g && g != &granadero) {
+            delete g;
+        }
+    }
+    granaderosHordasN2.clear();
+
+    // La lista general de enemigos se reconstruye en configurarNivel2()
+    enemigos.clear();
+}
+
+void Nivel::generarOleadaNivel2()
+{
+    oleadaActual++;
+
+    float factor = 1.0f + 0.25f * (oleadaActual - 1);
+    if (factor > 2.0f) factor = 2.0f;
+
+    const float X_SPAWN_BASE              = 1600.0f;
+    const float OFFSET_POR_OLEADA         = 40.0f;
+    const float SEPARACION_ENTRE_ENEMIGOS = 10.0f;
+
+    float baseX = X_SPAWN_BASE + OFFSET_POR_OLEADA * (oleadaActual - 1);
+    float baseY = comandante.getY();
+
+    //  Fusilero enemigo de esta horda
+    SoldadoEnemigo* fus = new SoldadoEnemigo();
+
+    fus->setPosicion(baseX, baseY);
+    fus->setSaludMax(enemigo.getSaludMax());
+    fus->setSalud(enemigo.getSaludMax());
+    fus->setDanoBase(enemigo.getDanoBase() * factor);
+    fus->setRangoVision(2000.0f);
+    fus->setRangoAtaque(enemigo.getRangoAtaque() * factor);
+
+
+    float cadBase = enemigo.getCadenciaDisparo();
+    float ajusteCadencia = 1.0f - 0.08f * (oleadaActual - 1);
+    if (ajusteCadencia < 0.7f) ajusteCadencia = 0.7f;
+    fus->setCadenciaDisparo(cadBase * ajusteCadencia);
+
+    fus->setVelocidadMovimiento(enemigo.getVelocidadMovimiento() * factor);
+
+    fusilerosHordasN2.push_back(fus);
+    enemigos.push_back(fus);
+
+    SoldadoGranadero* gran = new SoldadoGranadero();
+
+    gran->setPosicion(baseX + SEPARACION_ENTRE_ENEMIGOS, baseY);
+    gran->setSaludMax(granadero.getSaludMax());
+    gran->setSalud(granadero.getSaludMax());
+    gran->setDanoBase(granadero.getDanoBase() * factor);
+    gran->setRangoVision(2000.0f);
+    gran->setRangoLanzamiento(granadero.getRangoLanzamiento() * factor);
+
+    // Igual idea: misma base y solo un pelín más frecuente
+    float cdBase = granadero.getCooldownGranada();
+    float ajusteCD = 1.0f - 0.10f * (oleadaActual - 1);
+    if (ajusteCD < 0.6f) ajusteCD = 0.6f;
+    gran->setCooldownGranada(cdBase * ajusteCD);
+
+    gran->setVelocidadMovimiento(granadero.getVelocidadMovimiento() * factor);
+    gran->setRadioExplosion(granadero.getRadioExplosion());
+
+    granaderosHordasN2.push_back(gran);
+    enemigos.push_back(gran);
+}
+
+float Nivel::getTiempoRestante() const {
+    return tiempoMaximo - tiempoActual;
+}

@@ -72,4 +72,63 @@
         <file alias="BotonSalir">build/Desktop_Qt_6_9_2_MinGW_64_bit-Debug/Fondos/Menu/BotonSalir.png</file>
         <file alias="FondoMenu">build/Desktop_Qt_6_9_2_MinGW_64_bit-Debug/Fondos/Menu/FondoMenu.png</file>
     </qresource>
+    <qresource prefix="/Nivel2">
+        <file alias="FondoNivel2">build/Desktop_Qt_6_9_2_MinGW_64_bit-Debug/Fondos/MapaNivel2.png</file>
+    </qresource>
+    <qresource prefix="/ComandanteLateral">
+        <file alias="ComandanteLateralAgachado">build/Desktop_Qt_6_9_2_MinGW_64_bit-Debug/SpritePersonajesVistaLateral/ComandanteCorriendo/ComandanteAgachado.png</file>
+        <file alias="ComandanteLateral1">build/Desktop_Qt_6_9_2_MinGW_64_bit-Debug/SpritePersonajesVistaLateral/ComandanteCorriendo/ComandanteCorriendo1.png</file>
+        <file alias="ComandanteLateral2">build/Desktop_Qt_6_9_2_MinGW_64_bit-Debug/SpritePersonajesVistaLateral/ComandanteCorriendo/ComandanteCorriendo2.png</file>
+        <file alias="ComandanteLateral3">build/Desktop_Qt_6_9_2_MinGW_64_bit-Debug/SpritePersonajesVistaLateral/ComandanteCorriendo/ComandanteCorriendo3.png</file>
+        <file alias="ComandanteLateral4">build/Desktop_Qt_6_9_2_MinGW_64_bit-Debug/SpritePersonajesVistaLateral/ComandanteCorriendo/ComandanteCorriendo4.png</file>
+        <file alias="ComandanteLateral5">build/Desktop_Qt_6_9_2_MinGW_64_bit-Debug/SpritePersonajesVistaLateral/ComandanteCorriendo/ComandanteCorriendo5.png</file>
+        <file alias="ComandanteLateral6">build/Desktop_Qt_6_9_2_MinGW_64_bit-Debug/SpritePersonajesVistaLateral/ComandanteCorriendo/ComandanteCorriendo6.png</file>
+        <file alias="ComandanteLateral7">build/Desktop_Qt_6_9_2_MinGW_64_bit-Debug/SpritePersonajesVistaLateral/ComandanteCorriendo/ComandanteCorriendo7.png</file>
+        <file alias="ComandanteLateral8">build/Desktop_Qt_6_9_2_MinGW_64_bit-Debug/SpritePersonajesVistaLateral/ComandanteCorriendo/ComandanteCorriendo8.png</file>
+        <file alias="ComandanteLateral9">build/Desktop_Qt_6_9_2_MinGW_64_bit-Debug/SpritePersonajesVistaLateral/ComandanteCorriendo/ComandanteCorriendo9.png</file>
+        <file alias="ComandanteLateral10">build/Desktop_Qt_6_9_2_MinGW_64_bit-Debug/SpritePersonajesVistaLateral/ComandanteCorriendo/ComandanteCorriendo10.png</file>
+        <file alias="ComandanteLateral11">build/Desktop_Qt_6_9_2_MinGW_64_bit-Debug/SpritePersonajesVistaLateral/ComandanteCorriendo/ComandanteCorriendo11.png</file>
+        <file alias="ComandanteLateralDisparando1">build/Desktop_Qt_6_9_2_MinGW_64_bit-Debug/SpritePersonajesVistaLateral/ComandanteCorriendo/ComandanteDisparando1.png</file>
+        <file alias="ComandanteLateralDisparando2">build/Desktop_Qt_6_9_2_MinGW_64_bit-Debug/SpritePersonajesVistaLateral/ComandanteCorriendo/ComandanteDisparando2.png</file>
+        <file alias="ComandanteLateralDisparando3">build/Desktop_Qt_6_9_2_MinGW_64_bit-Debug/SpritePersonajesVistaLateral/ComandanteCorriendo/ComandanteDisparando3.png</file>
+        <file alias="ComandanteLateralDisparando4">build/Desktop_Qt_6_9_2_MinGW_64_bit-Debug/SpritePersonajesVistaLateral/ComandanteCorriendo/ComandanteDisparando4.png</file>
+        <file alias="ComandanteLateralDisparando5">build/Desktop_Qt_6_9_2_MinGW_64_bit-Debug/SpritePersonajesVistaLateral/ComandanteCorriendo/ComandanteDisparando5.png</file>
+        <file alias="ComandanteLateralDisparando6">build/Desktop_Qt_6_9_2_MinGW_64_bit-Debug/SpritePersonajesVistaLateral/ComandanteCorriendo/ComandanteDisparando6.png</file>
+    </qresource>
+    <qresource prefix="/FusileroLateral">
+        <file alias="FusileroAgachado">build/Desktop_Qt_6_9_2_MinGW_64_bit-Debug/SpritePersonajesVistaLateral/FusileroCorriendo/FusileroAgachado.png</file>
+        <file alias="FusileroLateral1">build/Desktop_Qt_6_9_2_MinGW_64_bit-Debug/SpritePersonajesVistaLateral/FusileroCorriendo/FusileroCorriendo1.png</file>
+        <file alias="FusileroLateral2">build/Desktop_Qt_6_9_2_MinGW_64_bit-Debug/SpritePersonajesVistaLateral/FusileroCorriendo/FusileroCorriendo2.png</file>
+        <file alias="FusileroLateral3">build/Desktop_Qt_6_9_2_MinGW_64_bit-Debug/SpritePersonajesVistaLateral/FusileroCorriendo/FusileroCorriendo3.png</file>
+        <file alias="FusileroLateral4">build/Desktop_Qt_6_9_2_MinGW_64_bit-Debug/SpritePersonajesVistaLateral/FusileroCorriendo/FusileroCorriendo4.png</file>
+        <file alias="FusileroLateral5">build/Desktop_Qt_6_9_2_MinGW_64_bit-Debug/SpritePersonajesVistaLateral/FusileroCorriendo/FusileroCorriendo5.png</file>
+        <file alias="FusileroLateral6">build/Desktop_Qt_6_9_2_MinGW_64_bit-Debug/SpritePersonajesVistaLateral/FusileroCorriendo/FusileroCorriendo6.png</file>
+        <file alias="FusileroLateral7">build/Desktop_Qt_6_9_2_MinGW_64_bit-Debug/SpritePersonajesVistaLateral/FusileroCorriendo/FusileroCorriendo7.png</file>
+        <file alias="FusileroLateral8">build/Desktop_Qt_6_9_2_MinGW_64_bit-Debug/SpritePersonajesVistaLateral/FusileroCorriendo/FusileroCorriendo8.png</file>
+        <file alias="FusileroLateral9">build/Desktop_Qt_6_9_2_MinGW_64_bit-Debug/SpritePersonajesVistaLateral/FusileroCorriendo/FusileroCorriendo9.png</file>
+        <file alias="FusileroLateral10">build/Desktop_Qt_6_9_2_MinGW_64_bit-Debug/SpritePersonajesVistaLateral/FusileroCorriendo/FusileroCorriendo10.png</file>
+        <file alias="FusileroLateral11">build/Desktop_Qt_6_9_2_MinGW_64_bit-Debug/SpritePersonajesVistaLateral/FusileroCorriendo/FusileroCorriendo11.png</file>
+        <file alias="FusileroDisparando1">build/Desktop_Qt_6_9_2_MinGW_64_bit-Debug/SpritePersonajesVistaLateral/FusileroCorriendo/ComandanteDisparando1.png</file>
+        <file alias="FusileroDisparando2">build/Desktop_Qt_6_9_2_MinGW_64_bit-Debug/SpritePersonajesVistaLateral/FusileroCorriendo/ComandanteDisparando2.png</file>
+        <file alias="FusileroDisparando3">build/Desktop_Qt_6_9_2_MinGW_64_bit-Debug/SpritePersonajesVistaLateral/FusileroCorriendo/ComandanteDisparando3.png</file>
+        <file alias="FusileroDisparando4">build/Desktop_Qt_6_9_2_MinGW_64_bit-Debug/SpritePersonajesVistaLateral/FusileroCorriendo/ComandanteDisparando4.png</file>
+        <file alias="FusileroDisparando5">build/Desktop_Qt_6_9_2_MinGW_64_bit-Debug/SpritePersonajesVistaLateral/FusileroCorriendo/ComandanteDisparando5.png</file>
+        <file alias="FusileroDisparando5">build/Desktop_Qt_6_9_2_MinGW_64_bit-Debug/SpritePersonajesVistaLateral/FusileroCorriendo/ComandanteDisparando6.png</file>
+    </qresource>
+    <qresource prefix="/GranaderoLateral">
+        <file alias="GranaderoLateral1">build/Desktop_Qt_6_9_2_MinGW_64_bit-Debug/SpritePersonajesVistaLateral/Granadero/Granadero1.png</file>
+        <file alias="GranaderoLateral2">build/Desktop_Qt_6_9_2_MinGW_64_bit-Debug/SpritePersonajesVistaLateral/Granadero/Granadero2.png</file>
+        <file alias="GranaderoLateral3">build/Desktop_Qt_6_9_2_MinGW_64_bit-Debug/SpritePersonajesVistaLateral/Granadero/Granadero3.png</file>
+        <file alias="GranaderoLateral4">build/Desktop_Qt_6_9_2_MinGW_64_bit-Debug/SpritePersonajesVistaLateral/Granadero/Granadero4.png</file>
+    </qresource>
+    <qresource prefix="/EnemigoLateral">
+        <file alias="Enemigo1">build/Desktop_Qt_6_9_2_MinGW_64_bit-Debug/SpritePersonajesVistaLateral/Enemigo/Enemigo1.png</file>
+        <file alias="Enemigo2">build/Desktop_Qt_6_9_2_MinGW_64_bit-Debug/SpritePersonajesVistaLateral/Enemigo/Enemigo2.png</file>
+        <file alias="Enemigo3">build/Desktop_Qt_6_9_2_MinGW_64_bit-Debug/SpritePersonajesVistaLateral/Enemigo/Enemigo3.png</file>
+        <file alias="Enemigo4">build/Desktop_Qt_6_9_2_MinGW_64_bit-Debug/SpritePersonajesVistaLateral/Enemigo/Enemigo4.png</file>
+        <file alias="Enemigo5">build/Desktop_Qt_6_9_2_MinGW_64_bit-Debug/SpritePersonajesVistaLateral/Enemigo/Granadero5.png</file>
+        <file alias="Enemigo6">build/Desktop_Qt_6_9_2_MinGW_64_bit-Debug/SpritePersonajesVistaLateral/Enemigo/Granadero6.png</file>
+        <file alias="Enemigo7">build/Desktop_Qt_6_9_2_MinGW_64_bit-Debug/SpritePersonajesVistaLateral/Enemigo/Granadero7.png</file>
+        <file alias="Enemigo8">build/Desktop_Qt_6_9_2_MinGW_64_bit-Debug/SpritePersonajesVistaLateral/Enemigo/Granadero8.png</file>
+    </qresource>
 </RCC>

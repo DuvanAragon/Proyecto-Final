@@ -25,7 +25,9 @@ SOURCES += \
     SoldadoGranadero.cpp \
     main.cpp \
     mainwindow.cpp \
-    menuwindow.cpp
+    menuwindow.cpp \
+    nivel2window.cpp \
+    personajelateralgrafico.cpp
 
 HEADERS += \
     Canonpesado.h \
@@ -43,7 +45,9 @@ HEADERS += \
     SoldadoEnemigo.h \
     SoldadoGranadero.h \
     mainwindow.h \
-    menuwindow.h
+    menuwindow.h \
+    nivel2window.h \
+    personajelateralgrafico.h
 
 FORMS += \
     mainwindow.ui \

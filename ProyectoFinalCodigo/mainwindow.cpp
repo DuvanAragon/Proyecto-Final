@@ -23,6 +23,7 @@
 #include "PersonajeGrafico.h"
 #include "ProyectilGrafico.h"
 #include "Nivel.h"
+#include "nivel2window.h"
 
 
 // Constantes de tiempo
@@ -315,7 +316,6 @@ void MainWindow::crearObstaculos()
     addCircle(944.167, 435,      26);
     addCircle(1446.67, 73.3333,  28);
 
-    // Trinchera: solo las paredes, interior hueco
     {
         qreal cx    = 1609.17;
         qreal cy    = 475.0;
@@ -365,13 +365,13 @@ void MainWindow::keyPressEvent(QKeyEvent *event)
         dispararComandante();
         break;
 
-    // Cubrirse (C)
+    // Cubrirse
     case Qt::Key_C:
         aliadosEnCobertura = true;
         actualizarHUD();
         break;
 
-    // Atacar / Seguir (V)
+    // Atacar / Seguir
     case Qt::Key_V:
         aliadosEnCobertura = false;
         actualizarHUD();
@@ -537,17 +537,14 @@ void MainWindow::actualizarMovimiento()
     const float PI = 3.14159265f;
 
     if (len > 0.0f) {
-        // Velocidad logica para que PersonajeGrafico sepa que se esta moviendo
         float vx = dx * velocidadJugador / dt;
         float vy = dy * velocidadJugador / dt;
         comandanteModelo->setVelocidad(vx, vy);
 
-        // Rotar sprite hacia la direccion de movimiento
         float angRad = std::atan2(dy, dx);
         float angDeg = angRad * 180.0f / PI;
         comandanteSprite->setRotation(angDeg);
 
-        // Mover al comandante en la escena
         moverComandante(dx * velocidadJugador,
                         dy * velocidadJugador);
     } else {
@@ -767,7 +764,6 @@ void MainWindow::actualizarIAAliados()
     float cx = comandanteModelo->getX();
     float cy = comandanteModelo->getY();
 
-    // movimiento generico con reagrupamiento
     auto moverPersonajeHacia = [this, cx, cy](Personaje* modelo,
                                               PersonajeGrafico* sprite,
                                               float objetivoX,
@@ -794,7 +790,7 @@ void MainWindow::actualizarIAAliados()
         float paso = velocidad * DT_IA;
         if (paso > dist) paso = dist;
 
-        // Distancia al comandante (para tu logica de lejosDelComandante)
+        // Distancia al comandante
         float distAlCmdX = x - cx;
         float distAlCmdY = y - cy;
         float distAlCmd  = std::sqrt(distAlCmdX*distAlCmdX + distAlCmdY*distAlCmdY);
@@ -835,7 +831,7 @@ void MainWindow::actualizarIAAliados()
                 choca = true;
             }
 
-            // Aliados entre si (si estan cerca del comandante)
+            // Aliados entre si
             if (!lejosDelComandante && !choca) {
                 if (fusileroSprite && sprite != fusileroSprite &&
                     fusileroModelo && fusileroModelo->getSalud() > 0 &&
@@ -861,7 +857,6 @@ void MainWindow::actualizarIAAliados()
         float nuevoX = x + movX;
         float nuevoY = y + movY;
 
-        // Helper para aplicar movimiento + velocidad + rotacion
         auto aplicarMovimiento = [&](float destX, float destY, float dirX, float dirY) {
             float vx = (destX - x) / DT_IA;
             float vy = (destY - y) / DT_IA;
@@ -876,25 +871,25 @@ void MainWindow::actualizarIAAliados()
             sprite->setRotation(angDeg);
         };
 
-        // 1) Intento mov completo (X+Y)
+        // Intento mov completo (X+Y)
         if (puedeMover(nuevoX, nuevoY)) {
             aplicarMovimiento(nuevoX, nuevoY, movX, movY);
             return;
         }
 
-        // 2) Intento solo X
+        // Intento solo X
         if (puedeMover(x + movX, y)) {
             aplicarMovimiento(x + movX, y, movX, 0.0f);
             return;
         }
 
-        // 3) Intento solo Y
+        // Intento solo Y
         if (puedeMover(x, y + movY)) {
             aplicarMovimiento(x, y + movY, 0.0f, movY);
             return;
         }
 
-        // 4) No se pudo mover
+        // No se pudo mover
         modelo->setVelocidad(0.0f, 0.0f);
     };
 
@@ -983,7 +978,7 @@ void MainWindow::actualizarIAAliados()
             }
 
             if (medicoModelo && medicoSprite && medicoModelo->getSalud() > 0) {
-                // Médico un poco mas atras que el fusilero
+                // Medico un poco mas atras que el fusilero
                 float objXM = cx - 90.0f;
                 float objYM = cy + 30.0f;
                 moverPersonajeHacia(
@@ -1064,7 +1059,7 @@ void MainWindow::actualizarIAAliados()
             float nx = vx / d;
             float ny = vy / d;
 
-            // Médico un poco más atrás en la misma linea
+            // Médico un poco mas atras en la misma linea
             objXM = fx - nx * 30.0f;
             objYM = fy - ny * 10.0f;
         } else {
@@ -1319,7 +1314,7 @@ void MainWindow::actualizarIAEnemigos()
                 }
             }
 
-            // Movimiento deseado (perseguir + separacion)
+            // Movimiento deseado
             float movX = nx * paso + sepX;
             float movY = ny * paso + sepY;
 
@@ -1346,17 +1341,14 @@ void MainWindow::actualizarIAEnemigos()
 
                 bool movido = false;
 
-                // 1) Intento movimiento completo (X + Y)
                 if (puedeMoverA(candidatoX, candidatoY)) {
                     enemigo->setPosicion(candidatoX, candidatoY);
                     movido = true;
                 } else {
-                    // 2) Intento solo X
                     if (puedeMoverA(ex + movX, ey)) {
                         enemigo->setPosicion(ex + movX, ey);
                         movido = true;
                     }
-                    // 3) Intento solo Y
                     else if (puedeMoverA(ex, ey + movY)) {
                         enemigo->setPosicion(ex, ey + movY);
                         movido = true;
@@ -1365,8 +1357,6 @@ void MainWindow::actualizarIAEnemigos()
             }
         }
         else {
-            // Francotirador: mantener distancia preferida respecto al COMANDANTE
-
             float nx = dx / distCmd;
             float ny = dy / distCmd;
 
@@ -1392,17 +1382,17 @@ void MainWindow::actualizarIAEnemigos()
 
                 bool movido = false;
 
-                // 1) Intento movimiento completo
+                // Intento movimiento completo
                 if (puedeMoverA(candidatoX, candidatoY)) {
                     enemigo->setPosicion(candidatoX, candidatoY);
                     movido = true;
                 } else {
-                    // 2) Intento solo X
+                    // Intento solo X
                     if (puedeMoverA(ex + movX, ey)) {
                         enemigo->setPosicion(ex + movX, ey);
                         movido = true;
                     }
-                    // 3) Intento solo Y
+                    // Intento solo Y
                     else if (puedeMoverA(ex, ey + movY)) {
                         enemigo->setPosicion(ex, ey + movY);
                         movido = true;
@@ -1541,9 +1531,8 @@ void MainWindow::actualizarProyectiles()
                     if (timerIAEnemigos)  timerIAEnemigos->stop();
 
                     mostrarMenuDerrota();
-                    return;   // salimos de actualizarProyectiles
+                    return;
                 }
-
             }
 
             // Borrar marca visual si existe
@@ -1790,7 +1779,6 @@ void MainWindow::verificarVictoria()
 
     if (!aliadosOk) return;
 
-    // Marcar nivel completado y detener timers
     nivelCompletado = true;
 
     if (timerMovimiento)  timerMovimiento->stop();
@@ -1800,8 +1788,21 @@ void MainWindow::verificarVictoria()
     QMessageBox::information(
         this,
         "Nivel 1 completado",
-        "Has eliminado a todos los enemigos y tu escuadrón llegó al punto de extracción.\n¡Nivel 1 superado!"
+        "Has eliminado a todos los enemigos y tu escuadrón llegó a la cima de la montaño.\n¡Nivel 1 superado!"
         );
+
+    auto *nivel2 = new Nivel2Window();
+    nivel2->setWindowOpacity(0.0);
+    nivel2->showMaximized();
+
+    QPropertyAnimation *animIn = new QPropertyAnimation(nivel2, "windowOpacity");
+    animIn->setDuration(450);
+    animIn->setStartValue(0.0);
+    animIn->setEndValue(1.0);
+    animIn->start(QAbstractAnimation::DeleteWhenStopped);
+
+    // Cerrar la ventana del Nivel 1
+    this->close();
 }
 
 //   Crear aliados
@@ -1831,7 +1832,7 @@ void MainWindow::crearAliados()
 
         medicoSprite = new PersonajeGrafico(medicoModelo);
         medicoSprite->setZValue(0);
-        medicoSprite->setPos(27.0f, 253.0f);
+        medicoSprite->setPos(27.0f, 203.0f);
         escena->addItem(medicoSprite);
     }
 }

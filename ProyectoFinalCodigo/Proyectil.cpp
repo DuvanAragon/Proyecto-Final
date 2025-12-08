@@ -1,4 +1,5 @@
 #include "Proyectil.h"
+#include <cmath>
 
 namespace {
 const float GRAVEDAD     = -9.8f;
@@ -135,6 +136,34 @@ void Proyectil::actualizar(float dt) {
 
     aplicarFisica(dt);
 
+    bool enSuelo = (y <= ALTURA_SUELO);
+    if (enSuelo) {
+        y = ALTURA_SUELO;
+
+        if (tipo == TIPO_GRANADA) {
+            const float umbralRebote = 2.0f;
+            const float coefRest     = 0.4f;
+            const float friccion     = 25.0f;
+
+            if (std::fabs(vy) > umbralRebote) {
+                vy = -vy * coefRest;
+                vx *= 0.8f;
+            } else {
+                vy = 0.0f;
+
+                if (std::fabs(vx) > 0.0f) {
+                    float signo = (vx > 0.0f) ? 1.0f : -1.0f;
+                    float dv    = friccion * dt;
+                    float mag   = std::fabs(vx) - dv;
+                    if (mag < 0.0f) mag = 0.0f;
+                    vx = signo * mag;
+                }
+            }
+        } else if (tipo != TIPO_BALA) {
+            activo = false;
+        }
+    }
+
     if (explosivo && !exploto) {
         if (tiempoDetonacion > 0.0f) {
             tiempoRestanteDetonacion -= dt;
@@ -143,25 +172,25 @@ void Proyectil::actualizar(float dt) {
                 activo  = false;
             }
         } else {
-            if (y <= ALTURA_SUELO) {
-                y       = ALTURA_SUELO;
+            if (enSuelo) {
                 exploto = true;
                 activo  = false;
             }
         }
-    } else {
-        if (tipo != TIPO_BALA && y <= ALTURA_SUELO) {
-            y      = ALTURA_SUELO;
-            activo = false;
-        }
+    } else if (!explosivo && tipo != TIPO_BALA && enSuelo) {
     }
+
 }
 
 void Proyectil::aplicarFisica(float dt) {
     if (tipo == TIPO_BALA) {
         return;
     }
-    vy += GRAVEDAD * dt;
+
+    const float kAire = 0.15f;
+
+    vx -= kAire * vx * dt;
+    vy += GRAVEDAD * dt - kAire * vy * dt;
 }
 
 bool Proyectil::fueDestruido() const {

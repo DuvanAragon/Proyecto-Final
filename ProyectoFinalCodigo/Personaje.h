@@ -33,7 +33,7 @@ public:
     void setEsAliado(bool _esAliado);
     void setDanoBase(int _danoBase);
 
-    // Métodos básicos
+    // Métodos
     virtual void mover(float dt);
     virtual void recibirDano(int cantidad);
     virtual void atacar(Personaje* objetivo);

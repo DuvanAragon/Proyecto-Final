@@ -1,6 +1,8 @@
 #include "SoldadoEnemigo.h"
 #include "Proyectil.h"
 #include <cmath>
+#include <cstdlib>
+
 
 // Constructores
 SoldadoEnemigo::SoldadoEnemigo()
@@ -33,6 +35,13 @@ SoldadoEnemigo::SoldadoEnemigo(float xParam,
     tiempoDesdeUltimoDisparo(0.0f),
     velocidadMovimiento(velocidadMovimientoParam)
 {
+}
+
+namespace {
+    float randEnRango(float minVal, float maxVal) {
+        float t = std::rand() / static_cast<float>(RAND_MAX);
+        return minVal + (maxVal - minVal) * t;
+    }
 }
 
 // Getters
@@ -166,6 +175,49 @@ Proyectil* SoldadoEnemigo::disparar(Personaje* objetivo, float velocidadInicial)
 
     Proyectil* p = new Proyectil(x, y, vxProj, vyProj, danoBase,
                                  Proyectil::TIPO_BALA, esAliado);
+    tiempoDesdeUltimoDisparo = 0.0f;
+    return p;
+}
+
+Proyectil* SoldadoEnemigo::dispararConError(Personaje* objetivo,
+                                            float velocidadInicial,
+                                            float errorMaxGrados)
+{
+    if (!objetivo) return nullptr;
+    if (salud <= 0) return nullptr;
+    if (objetivo->getEsAliado() == esAliado) return nullptr;
+
+    float dx   = objetivo->getX() - x;
+    float dy   = objetivo->getY() - y;
+    float dist = std::sqrt(dx * dx + dy * dy);
+    if (dist <= 0.0f)  return nullptr;
+    if (dist > rangoAtaque) return nullptr;
+
+    if (tiempoDesdeUltimoDisparo < cadenciaDisparo) return nullptr;
+    if (velocidadInicial <= 0.0f) velocidadInicial = 1.0f;
+    if (errorMaxGrados < 0.0f)   errorMaxGrados   = 0.0f;
+
+    // Ángulo base hacia el comandante
+    float angBase = std::atan2(dy, dx);
+
+    // Error aleatorio
+    float maxRad  = errorMaxGrados * 3.14159265f / 180.0f;
+    float delta   = randEnRango(-maxRad, maxRad);
+    float angulo  = angBase + delta;
+
+    float vxProj = std::cos(angulo) * velocidadInicial;
+    float vyProj = std::sin(angulo) * velocidadInicial;
+
+    // 🔧 ALTURA DEL ARMA (unos píxeles por encima de los pies)
+    const float ALTURA_ARMA = 35.0f;
+    float yDisparo = y - ALTURA_ARMA;
+
+    Proyectil* p = new Proyectil(x, yDisparo,
+                                 vxProj, vyProj,
+                                 danoBase,
+                                 Proyectil::TIPO_BALA,
+                                 esAliado);  // esAliado = false → proyectil enemigo
+
     tiempoDesdeUltimoDisparo = 0.0f;
     return p;
 }

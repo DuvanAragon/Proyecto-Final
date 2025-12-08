@@ -1,6 +1,7 @@
 #include "SoldadoGranadero.h"
 #include "Proyectil.h"
 #include <cmath>
+#include <cstdlib>
 
 // Constructores
 SoldadoGranadero::SoldadoGranadero()
@@ -10,7 +11,8 @@ SoldadoGranadero::SoldadoGranadero()
     cooldownGranada(8.0f),
     tiempoDesdeUltGranada(0.0f),
     velocidadMovimiento(30.0f),
-    radioExplosion(40.0f)
+    radioExplosion(40.0f),
+    lanzoEnEsteFrame(false)
 {
     esAliado = false;
     setSaludMax(90);
@@ -34,8 +36,16 @@ SoldadoGranadero::SoldadoGranadero(float xParam,
     cooldownGranada(cooldownGranadaParam),
     tiempoDesdeUltGranada(0.0f),
     velocidadMovimiento(velocidadMovimientoParam),
-    radioExplosion(radioExplosionParam)
+    radioExplosion(radioExplosionParam),
+    lanzoEnEsteFrame(false)
 {
+}
+
+namespace {
+    float randEnRango(float minVal, float maxVal) {
+        float t = std::rand() / static_cast<float>(RAND_MAX);
+        return minVal + (maxVal - minVal) * t;
+    }
 }
 
 // Getters
@@ -126,15 +136,16 @@ void SoldadoGranadero::actualizarIA(Personaje* objetivo, float dt) {
     }
 }
 
-Proyectil* SoldadoGranadero::lanzarGranada(Personaje* objetivo, float velocidadInicial) {
+Proyectil* SoldadoGranadero::lanzarGranada(Personaje* objetivo,
+                                           float velocidadInicial)
+{
     if (objetivo == nullptr) return nullptr;
-    if (salud <= 0) return nullptr;
+    if (salud <= 0)          return nullptr;
     if (tiempoDesdeUltGranada < cooldownGranada) return nullptr;
 
-    float dx = objetivo->getX() - x;
-    float dy = objetivo->getY() - y;
+    float dx   = objetivo->getX() - x;
+    float dy   = objetivo->getY() - y;
     float dist = std::sqrt(dx * dx + dy * dy);
-
     if (dist > rangoLanzamiento) return nullptr;
     if (velocidadInicial <= 0.0f) velocidadInicial = 1.0f;
 
@@ -142,9 +153,14 @@ Proyectil* SoldadoGranadero::lanzarGranada(Personaje* objetivo, float velocidadI
     float dirY = dy / dist;
 
     float vxProj = dirX * velocidadInicial;
-    float vyProj = dirY * velocidadInicial + 15.0f;
+    float vyProj = dirY * velocidadInicial + 15.0f;   // pequeño arco
 
-    Proyectil* granada = new Proyectil(x, y, vxProj, vyProj,
+    // 🔧 Altura desde la mano para que no salga del suelo
+    const float ALTURA_MANO = 35.0f;
+    float yLanzamiento = y - ALTURA_MANO;
+
+    Proyectil* granada = new Proyectil(x, yLanzamiento,
+                                       vxProj, vyProj,
                                        danoBase, Proyectil::TIPO_GRANADA, esAliado);
 
     granada->configurarExplosivo(
@@ -154,6 +170,95 @@ Proyectil* SoldadoGranadero::lanzarGranada(Personaje* objetivo, float velocidadI
         objetivo->getY()
         );
 
+    // 🔧 TIEMPO DE VIDA CORTO PARA LA PARÁBOLA VISUAL
+    granada->setTiempoVidaMax(1.5f);
+
     tiempoDesdeUltGranada = 0.0f;
+    lanzoEnEsteFrame = true;
+    return granada;
+
+}
+Proyectil* SoldadoGranadero::lanzarGranadaConError(Personaje* objetivo,
+                                                   float /*velocidadInicial*/,
+                                                   float errorMaxDistancia)
+{
+    if (!objetivo) return nullptr;
+    if (salud <= 0) return nullptr;
+    if (tiempoDesdeUltGranada < cooldownGranada) return nullptr;
+
+    // --- Snapshot de la posición del comandante ---
+    float xCmd = objetivo->getX();
+    float yCmd = objetivo->getY();  // en tu modelo es ~0 para nivel 2
+
+    // Error en X para oleadas menos precisas
+    if (errorMaxDistancia < 0.0f) errorMaxDistancia = 0.0f;
+    float errX = randEnRango(-errorMaxDistancia, errorMaxDistancia);
+
+    float xObjetivo = xCmd + errX;
+    float yObjetivo = 0.0f;     // queremos que caiga al suelo
+
+    // --- Punto de lanzamiento lógico ---
+    const float ALTURA_LANZAMIENTO = 40.0f; // 40 unidades sobre el suelo lógico
+    float x0 = x;
+    float y0 = ALTURA_LANZAMIENTO;
+
+    // Distancia horizontal
+    float dx = xObjetivo - x0;
+    float distancia = std::fabs(dx);
+    if (distancia < 1.0f) distancia = 1.0f;
+
+    // --- Cálculo balístico aproximado (ignorando rozamiento) ---
+    const float g = 9.8f;              // módulo de la gravedad
+
+    // Ángulo de tiro (en radianes) -> 55º aprox
+    float angulo = 55.0f * 3.14159265f / 180.0f;
+    float sin2a  = std::sin(2.0f * angulo);
+    if (std::fabs(sin2a) < 0.01f) sin2a = 0.01f;
+
+    // Velocidad inicial para alcanzar distancia 'distancia'
+    float v0 = std::sqrt(distancia * g / sin2a);
+
+    float dirX   = (dx >= 0.0f) ? 1.0f : -1.0f;
+    float vxProj = dirX * v0 * std::cos(angulo);
+    float vyProj = v0 * std::sin(angulo);     // positivo hacia arriba
+
+    // --- Crear la granada con el constructor correcto (7 parámetros) ---
+    Proyectil* granada = new Proyectil(
+        x0,
+        y0,
+        vxProj,
+        vyProj,
+        danoBase,
+        Proyectil::TIPO_GRANADA,
+        esAliado    // false para enemigo
+        );
+
+    // Tiempo de vuelo aproximado (sube y baja)
+    float tiempoVuelo = 2.0f * v0 * std::sin(angulo) / g;
+    granada->setTiempoVidaMax(tiempoVuelo + 0.5f);  // un poquito más
+
+    // --- “Inteligencia” según errorMaxDistancia ---
+    float tiempoDetonacion = 0.0f;
+
+    if (errorMaxDistancia >= 30.0f) {
+        // Oleadas fáciles: explota casi al tocar suelo
+        tiempoDetonacion = 0.0f;
+    } else if (errorMaxDistancia >= 15.0f) {
+        // Intermedio: rebote corto
+        tiempoDetonacion = 0.6f;
+    } else {
+        // Muy preciso (oleadas avanzadas): más tiempo rodando
+        tiempoDetonacion = 1.2f;
+    }
+
+    granada->configurarExplosivo(
+        radioExplosion,
+        tiempoDetonacion,
+        xObjetivo,
+        yObjetivo
+        );
+
+    tiempoDesdeUltGranada = 0.0f;
+    lanzoEnEsteFrame      = true;
     return granada;
 }

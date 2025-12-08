@@ -3,7 +3,6 @@
 #include <cmath>
 
 Francotirador::Francotirador() : Personaje() {
-    // Configurar como aliado y stats base
     esAliado = true;
     saludMax = 80;
     salud    = saludMax;

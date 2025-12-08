@@ -9,7 +9,6 @@ class Proyectil;
 class ProyectilGrafico : public QObject, public QGraphicsPixmapItem
 {
     Q_OBJECT
-
 public:
     explicit ProyectilGrafico(Proyectil* modelo,
                               QGraphicsItem* parent = nullptr);
